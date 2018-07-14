@@ -26,7 +26,7 @@ RUN pip install --no-cache-dir -r requirements.txt # 1
 ADD VERSION .
 ADD gpspull.py .
 RUN chmod 755 gpspull.py
-ADD cron-gpspull /tmp/cron-gpspull
+ADD cron-gpspull .
 ADD run_crond.sh  .
 RUN chmod 755 run_crond.sh
 
