@@ -61,6 +61,7 @@ def setRecvSpeed(curl, speed):
 
 
 def poll(receiver, day):
+    finished = False
     c = pycurl.Curl()
     c.setopt(c.VERBOSE, True)
     if 'userpw' in receiver:
@@ -84,26 +85,34 @@ def poll(receiver, day):
 
     out_file = out_base / url_parts.path[1:]
     if os.path.exists(out_file):
-        logging.info("Finished with %s. I already have %s",
-                     receiver['station'], out_file)
-        return True
-
-    logging.info("Fetching %s from %s", out_file, url)
-    try:
-        tmp_file = str(out_file) + ".tmp"
-        with open(tmp_file, 'wb') as f:
-            c.setopt(c.WRITEDATA, f)
-            c.perform()
-            os.rename(tmp_file, out_file)
-    except Exception:
+        logging.info("I already have %s", out_file)
+        finished = True
+    else:
+        logging.info("Fetching %s from %s", out_file, url)
         try:
-            os.remove(out_file)
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise
-        return True
+            tmp_file = str(out_file) + ".tmp"
+            with open(tmp_file, 'wb') as f:
+                c.setopt(c.WRITEDATA, f)
+                c.perform()
+                os.rename(tmp_file, out_file)
+        except Exception as e1:
+            logging.error("Unexpected error while retrieving file, lets set this one aside.", e1)
+            try:
+                os.remove(out_file)
+            except OSError as e2:
+                if e2.errno != errno.EEXIST:
+                    raise
+            return True
 
-    return False
+    if 'backfill' in receiver:
+        backfill_date = datetime.strptime(receiver['backfill'], '%m/%d/%Y').date()
+        if day > backfill_date:
+            logging.info("Continuing to backfill from %s to %s", day, backfill_date)
+            finished = False
+        else:
+            logging.debug("Continuing to backfill from %s to %s", day, backfill_date)
+
+    return finished
 
 
 def get_env_var(var):
@@ -123,16 +132,6 @@ def validate_env():
     return env
 
 
-def get_backfill_date(config):
-    if 'backfill' not in config:
-        return None
-
-    backfill = datetime.strptime(config['backfill'], '%m/%d/%Y')
-    logging.debug("Backfill date: %s", backfill)
-
-    return backfill
-
-
 def main():
     """Where it all begins."""
 
@@ -142,19 +141,17 @@ def main():
 
     day = datetime.utcnow().date()
     receivers = config['receivers']
-    backfill_date = get_backfill_date(config)
 
     while receivers:
         day -= timedelta(1)
         for receiver in config['receivers']:
             finished = poll(receiver, day)
 
-            if backfill_date:
-                finished = day <= backfill_date
-
             if finished:
+                logging.info("All done with %s", receiver['station'])
                 receivers.remove(receiver)
 
+    logging.info("That's evething, I'm done for the day.")
 
 if __name__ == '__main__':
     main()
