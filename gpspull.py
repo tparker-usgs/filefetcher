@@ -28,19 +28,17 @@ from ruamel.yaml import YAML
 from urllib.parse import urlparse
 import errno
 
-START_TIME = None
-PULL_JOB = os.environ['PULL_JOB']
-BASE_DIR = os.environ['BASE_DIR']
 WINDOW_SIZE_FACTOR = 2
 
-def parse_config():
-    config_file = pathlib.Path(BASE_DIR)
-    config_file /= "config"
-    config_file /= (PULL_JOB + ".yml")
-    logging.debug("Parsing config file. (%s)", config_file)
+def parse_config(config_file):
+    logging.debug("Parsing config file. [%s]", config_file)
 
     yaml = YAML()
-    config = yaml.load(config_file)
+    try:
+        config = yaml.load(config_file)
+    except FileNotFoundError:
+        logging.error("Cannot read config file %s", config_file)
+        exit(1)
 
     return config
 
@@ -77,18 +75,16 @@ def poll(receiver, day):
     c.setopt(c.URL, url)
 
     url_parts = urlparse(url)
-    out_base = pathlib.Path(BASE_DIR) / receiver['station']
+    out_base = pathlib.Path(receiver['out_dir']) / receiver['station']
     try:
         out_dir = out_base / os.path.dirname(url_parts.path)[1:]
         os.makedirs(out_dir)
         logging.info("Created %s", out_dir)
-
     except OSError as e:
         if e.errno != errno.EEXIST:
             raise
 
     out_file = out_base / url_parts.path[1:]
-
     if os.path.exists(out_file):
         logging.info("Finished with %s. I already have %s",
                      receiver['station'], out_file)
@@ -102,28 +98,60 @@ def poll(receiver, day):
             c.perform()
             os.rename(tmp_file, out_file)
     except:
-        os.remove(out_file)
+        try:
+            os.remove(out_file)
+        except FileNotFoundError:
+            pass
         return True
 
     return False
 
 
+def get_env_var(var):
+    if var in os.environ:
+        logging.debug("%s: %s", var, os.environ[var])
+        return os.environ[var]
+
+    else:
+        print("Envionment variable {} not set, exiting.".format(var))
+        sys.exit(1)
+
+
+def validate_env():
+    env = {}
+    env['config_file'] = get_env_var('CONFIG_FILE')
+
+    return env
+
+
+def get_backfill_date(config):
+    if 'backfill' not in config:
+        return None
+
+    backfill = datetime.strptime(config['backfill'], '%m/%d/%Y')
+    logging.debug("Backfill date: %s", backfill)
+
+    return backfill
+
 def main():
     """Where it all begins."""
 
     logging.basicConfig(level=logging.DEBUG)
-    logging.debug("BASE_DIR: %s", BASE_DIR)
-    logging.debug("PULL_JOB: %s", PULL_JOB)
+    env = validate_env()
+    config = parse_config(pathlib.Path(env['config_file']))
 
-    config = parse_config()
-
-    day = datetime.datetime.utcnow().date()
+    day = datetime.utcnow().date()
     receivers = config['receivers']
+    backfill_date = get_backfill_date(config)
 
     while receivers:
         day -= timedelta(1)
         for receiver in config['receivers']:
             finished = poll(receiver, day)
+
+            if backfill_date:
+                finished = day <= backfill_date
+
             if finished:
                 receivers.remove(receiver)
 

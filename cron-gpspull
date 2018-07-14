@@ -1,4 +1,0 @@
-PATH=/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-
-40 * * * * * root cd /app/gpspull ; ./gpspull.py > $BASE_DIR/logs/gpspull_`date -u "+\%Y\%m\%d"` 2>&1
-0 0 * * * root find $BASE_DIR/logs -mtime +14 -exec rm {} \;
