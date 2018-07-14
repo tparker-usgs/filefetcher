@@ -9,26 +9,21 @@
 
 """ Retrieve GPS files."""
 
-import argparse
-from datetime import timedelta, date, datetime
-import json
+from datetime import timedelta, datetime
 import logging
 import os
-import re
-from time import mktime
-import time
-from humanize import naturalsize
 import sys
 import socket
 import struct
-import dateutil.parser  # aka python-dateutil
 import pycurl
 import pathlib
 from ruamel.yaml import YAML
 from urllib.parse import urlparse
 import errno
 
+
 WINDOW_SIZE_FACTOR = 2
+
 
 def parse_config(config_file):
     logging.debug("Parsing config file. [%s]", config_file)
@@ -36,9 +31,12 @@ def parse_config(config_file):
     yaml = YAML()
     try:
         config = yaml.load(config_file)
-    except FileNotFoundError:
-        logging.error("Cannot read config file %s", config_file)
-        exit(1)
+    except OSError as e:
+        if e.errno == errno.EEXIST:
+            logging.error("Cannot read config file %s", config_file)
+            exit(1)
+        else:
+            raise
 
     return config
 
@@ -97,11 +95,12 @@ def poll(receiver, day):
             c.setopt(c.WRITEDATA, f)
             c.perform()
             os.rename(tmp_file, out_file)
-    except:
+    except Exception:
         try:
             os.remove(out_file)
-        except FileNotFoundError:
-            pass
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
         return True
 
     return False
@@ -132,6 +131,7 @@ def get_backfill_date(config):
     logging.debug("Backfill date: %s", backfill)
 
     return backfill
+
 
 def main():
     """Where it all begins."""
