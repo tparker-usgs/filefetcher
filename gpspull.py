@@ -31,7 +31,7 @@ import errno
 START_TIME = None
 PULL_JOB = os.environ['PULL_JOB']
 BASE_DIR = os.environ['BASE_DIR']
-
+WINDOW_SIZE_FACTOR = 2
 
 def parse_config():
     config_file = pathlib.Path(BASE_DIR)
@@ -50,10 +50,11 @@ def setRecvSpeed(curl, speed):
         logging.debug("Setting RECV_SPEED to %s b/s", speed)
         sock = socket.socket(fileno=curlfd)
 
+        window_size = speed * WINDOW_SIZE_FACTOR
         if sys.maxsize > 2 ** 32:
-            size = struct.pack(str("ll"), int(speed), int(0))
+            size = struct.pack(str("ll"), int(window_size), int(0))
         else:
-            size = struct.pack(str("ii"), int(speed), int(0))
+            size = struct.pack(str("ii"), int(window_size), int(0))
 
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, size)
         sock.detach()
