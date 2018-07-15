@@ -1,0 +1,44 @@
+# Example gpspull configuration file in YAML 1.2 format.
+
+# Required parameters
+#
+# out_dir: Where the files will be placed. Files will be placed inside of a directory inside of a directory named for
+#          the reciever, in a structure mirroring the remote device.
+# url: The pattern used for formatting file URLs. The pattern may contain both date format strings and config
+#      substitution strings. Use a double percent for substitution strings.
+#
+#
+# Optional parameters
+#
+# recvSpeed: Maximum bandwidth in bytes per second. Will also attempt to set TCP receive window to double this value.
+# backfill: if provided a date in mm/dd/yyyy format, an attempt will be made to retrieve all missing files through that
+#           date.
+
+defaults: &DEFAULTS
+  out_dir: /Users/tomp/gpspull
+  recvSpeed: 640
+
+septentrio: &SEPTENTRIO
+  <<: *DEFAULTS
+  url: ftp://%%(address)s/DSK1/SSN/LOG1_A/%y%j/%%(station)s%j0.%y_
+
+trimble: &TRIMBLE
+  <<: *DEFAULTS
+  url: ftp://%%(address)s/%Y%m/a/%%(station)s%Y%m%d0000a.T00
+
+receivers:
+  - station: SPBG
+    <<: *SEPTENTRIO
+    address: 10.0.0.1
+
+  - station: SPCR
+    <<: *SEPTENTRIO
+    address: 10.0.0.2
+
+ - station: SPCG
+    <<: *TRIMBLE
+    address: 10.0.0.3
+
+  - station: SPCP
+    <<: *TRIMBLE
+    address: 10.0.0.4
