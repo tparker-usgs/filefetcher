@@ -1,4 +1,4 @@
 PATH=/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/app/gpspull
 
-10 * * * * * root gpspull.py > $LOG_DIR/gpspull_`date -u "+\%Y\%m\%d"` 2>&1
+10 * * * * * root gpspull.py > $LOG_DIR/${LOG_NAME}_`date -u "+\%Y\%m\%d"` 2>&1
 0 0 * * * root find $LOG_DIR -mtime +14 -exec rm {} \;
