@@ -18,23 +18,23 @@ receivers:
   - station: SPBG
     out_dir: /Users/tomp/gpspull
     recvSpeed: 640
-    url: ftp://%%(address)s/DSK1/SSN/LOG1_A/%y%j/%%(station)s%j0.%y_
+    url: ftp://%%(address)s/DSK1/SSN/LOG1_A/%y%j/SPBG%j0.%y_
     address: 10.0.0.1
 
   - station: SPCR
     out_dir: /Users/tomp/gpspull
     recvSpeed: 640
-    url: ftp://%%(address)s/DSK1/SSN/LOG1_A/%y%j/%%(station)s%j0.%y_
+    url: ftp://%%(address)s/DSK1/SSN/LOG1_A/%y%j/SPCR%j0.%y_
     address: 10.0.0.2
 
  - station: SPCG
     out_dir: /Users/tomp/gpspull
     recvSpeed: 640
-    url: ftp://%%(address)s/%Y%m/a/%%(station)s%Y%m%d0000a.T00
+    url: ftp://%%(address)s/%Y%m/a/SPCG%Y%m%d0000a.T00
     address: 10.0.0.3
 
   - station: SPCP
     out_dir: /Users/tomp/gpspull
     recvSpeed: 640
-    url: ftp://%%(address)s/%Y%m/a/%%(station)s%Y%m%d0000a.T00
+    url: ftp://%%(address)s/%Y%m/a/SPCP%Y%m%d0000a.T00
     address: 10.0.0.4
