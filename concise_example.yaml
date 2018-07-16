@@ -10,12 +10,12 @@
 #
 # Optional parameters
 #
-# recvSpeed: Maximum bandwidth in bytes per second. Will also attempt to set TCP receive window to double this value.
+# recvSpeed: Maximum bandwidth in bytes per second. Will also attempt to set TCP receive window to double this value. Use 0 for unlimited.
 # backfill: if provided a date in mm/dd/yyyy format, an attempt will be made to retrieve all missing files through that
 #           date.
 
 defaults: &DEFAULTS
-  out_dir: /Users/tomp/gpspull
+  out_dir: /GPS/gpspull
   recvSpeed: 640
 
 septentrio: &SEPTENTRIO
@@ -26,19 +26,38 @@ trimble: &TRIMBLE
   <<: *DEFAULTS
   url: ftp://%%(address)s/%Y%m/a/%%(station)s%Y%m%d0000a.T00
 
-receivers:
-  - station: SPBG
-    <<: *SEPTENTRIO
-    address: 10.0.0.1
-
-  - station: SPCR
-    <<: *SEPTENTRIO
-    address: 10.0.0.2
-
- - station: SPCG
-    <<: *TRIMBLE
-    address: 10.0.0.3
-
-  - station: SPCP
-    <<: *TRIMBLE
-    address: 10.0.0.4
+networks:
+    -- name: spurr
+       receivers:
+         - station: SPBG
+           <<: *SEPTENTRIO
+           address: 10.0.0.1
+       
+         - station: SPCR
+           <<: *SEPTENTRIO
+           address: 10.0.0.2
+       
+        - station: SPCG
+           <<: *TRIMBLE
+           address: 10.0.0.3
+       
+         - station: SPCP
+           <<: *TRIMBLE
+           address: 10.0.0.4
+    -- name: okmok
+       receivers:
+         - station: OKCE
+           <<: *SEPTENTRIO
+           address: 10.0.0.5
+       
+         - station: OKNC
+           <<: *SEPTENTRIO
+           address: 10.0.0.6
+       
+        - station: OKFG
+           <<: *TRIMBLE
+           address: 10.0.0.7
+       
+         - station: OKSO
+           <<: *TRIMBLE
+           address: 10.0.0.8

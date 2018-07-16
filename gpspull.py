@@ -21,7 +21,7 @@ from ruamel.yaml import YAML
 from urllib.parse import urlparse
 import errno
 from multiprocessing import Process, Queue
-
+from distutils import util
 
 WINDOW_SIZE_FACTOR = 2
 
@@ -142,10 +142,11 @@ def poll_network(config):
             finished = poll(receiver, day)
 
             if finished:
-                logging.info("All done with %s", receiver['station'])
+                logging.info("All done with receiver %s.", receiver['station'])
                 receivers.remove(receiver)
 
-    logging.info("All done with %s", config['name'])
+    logging.info("All done with network %s.", config['name'])
+
 
 def main():
     """Where it all begins."""
@@ -155,9 +156,11 @@ def main():
     config = parse_config(pathlib.Path(env['config_file']))
 
     for network in config['networks']:
-        print("TOMP SAYS: " + str(network))
-        p = Process(target=poll_network, args=(network,))
-        p.start()
+        if 'disabled' in network and network['disabled']:
+            print ("Network {} is disabled, skiping it.".format(network['name']))
+        else:
+            p = Process(target=poll_network, args=(network,))
+            p.start()
 
 
 if __name__ == '__main__':

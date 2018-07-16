@@ -1,6 +1,6 @@
 #!/bin/sh
 
-./build.sh
+support/build.sh
 if [ $? == 0 ]; then
     docker stop gpspull
     docker rm gpspull
