@@ -20,6 +20,7 @@ import pathlib
 from ruamel.yaml import YAML
 from urllib.parse import urlparse
 import errno
+from multiprocessing import Process, Queue
 
 
 WINDOW_SIZE_FACTOR = 2
@@ -132,16 +133,9 @@ def validate_env():
     return env
 
 
-def main():
-    """Where it all begins."""
-
-    logging.basicConfig(level=logging.DEBUG)
-    env = validate_env()
-    config = parse_config(pathlib.Path(env['config_file']))
-
+def poll_network(config):
     day = datetime.utcnow().date()
     receivers = config['receivers']
-
     while receivers:
         day -= timedelta(1)
         for receiver in config['receivers']:
@@ -151,7 +145,20 @@ def main():
                 logging.info("All done with %s", receiver['station'])
                 receivers.remove(receiver)
 
-    logging.info("That's evething, I'm done for the day.")
+    logging.info("All done with %s", config['name'])
+
+def main():
+    """Where it all begins."""
+
+    logging.basicConfig(level=logging.DEBUG)
+    env = validate_env()
+    config = parse_config(pathlib.Path(env['config_file']))
+
+    for network in config['networks']:
+        print("TOMP SAYS: " + str(network))
+        p = Process(target=poll_network, args=(network,))
+        p.start()
+
 
 if __name__ == '__main__':
     main()

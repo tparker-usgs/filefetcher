@@ -7,8 +7,8 @@ if [ $? == 0 ]; then
     docker run \
         --restart=always \
         --detach=true \
-        --mount type=bind,src=/Users/tomp/gpspull,dst=/data \
-        --env-file=/Users/tomp/private/gpspull.env \
+        --mount type=bind,src=$HOME/gpspull,dst=/data \
+        --env-file=$HOME/private/gpspull.env \
         --name gpspull \
         gpspull
 else
