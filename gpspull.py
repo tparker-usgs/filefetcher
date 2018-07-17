@@ -27,7 +27,8 @@ WINDOW_SIZE_FACTOR = 2
 
 
 def exit_with_error(error):
-
+    exit(1)
+    
 def parse_config(config_file):
     logging.debug("Parsing config file. [%s]", config_file)
 
