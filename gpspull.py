@@ -23,37 +23,30 @@ import errno
 from multiprocessing import Process, Queue
 from distutils import util
 import smtplib
+from buffering_smtp_handler import BufferingSMTPHandler
 
 WINDOW_SIZE_FACTOR = 2
 
 env = None
 
-def exit_with_error(error):
-    if 'smtp_Server' in env:
-        msg = "To: %s\n".format(env['smtp_recipient'])
-        msg += "From: %s\n".format(env['smtp_sender'])
-        msg += "Subject: fatal gpspull error\n"
-        msg += "\n"
-        msg += "gpspull exited with error:\n"
-        msg += error
-    else:
-        print(error)
 
+def exit_with_error(error):
+    logger.error(error)
     sys.exit(1)
 
 
 def parse_config(config_file):
-    logging.debug("Parsing config file. [%s]", config_file)
+    logger.debug("Parsing config file. [%s]", config_file)
 
     yaml = ruamel.yaml.YAML()
     try:
         config = yaml.load(config_file)
     except ruamel.yaml.parser.ParserError as e1:
-        logging.error("Cannot parse config file")
+        logger.error("Cannot parse config file")
         exit_with_error(e1)
     except OSError as e:
         if e.errno == errno.EEXIST:
-            logging.error("Cannot read config file %s", config_file)
+            logger.error("Cannot read config file %s", config_file)
             exit_with_error(e)
         else:
             raise
@@ -67,9 +60,9 @@ def parse_config(config_file):
 def setRecvSpeed(curl, speed):
     if speed < 1:
         return
-    
+
     def sockoptfunction(curlfd, purpose):
-        logging.debug("Setting RECV_SPEED to %s b/s", speed)
+        logger.debug("Setting RECV_SPEED to %s b/s", speed)
         sock = socket.socket(fileno=curlfd)
 
         window_size = speed * WINDOW_SIZE_FACTOR
@@ -104,17 +97,17 @@ def poll(receiver, day):
     try:
         out_dir = out_base / os.path.dirname(url_parts.path)[1:]
         os.makedirs(out_dir)
-        logging.info("Created %s", out_dir)
+        logger.info("Created %s", out_dir)
     except OSError as e:
         if e.errno != errno.EEXIST:
             raise
 
     out_file = out_base / url_parts.path[1:]
     if os.path.exists(out_file):
-        logging.info("I already have %s", out_file)
+        logger.info("I already have %s", out_file)
         finished = True
     else:
-        logging.info("Fetching %s from %s", out_file, url)
+        logger.info("Fetching %s from %s", out_file, url)
         try:
             tmp_file = str(out_file) + ".tmp"
             with open(tmp_file, 'wb') as f:
@@ -122,7 +115,7 @@ def poll(receiver, day):
                 c.perform()
                 os.rename(tmp_file, out_file)
         except Exception as e1:
-            logging.error("Unexpected error while retrieving file, lets set this one aside.")
+            logger.error("Unexpected error while retrieving file, lets set this one aside.")
             try:
                 os.remove(out_file)
             except OSError as e2:
@@ -133,17 +126,17 @@ def poll(receiver, day):
     if 'backfill' in receiver:
         backfill_date = datetime.strptime(receiver['backfill'], '%m/%d/%Y').date()
         if day > backfill_date:
-            logging.info("Continuing to backfill from %s to %s", day, backfill_date)
+            logger.info("Continuing to backfill from %s to %s", day, backfill_date)
             finished = False
         else:
-            logging.debug("Continuing to backfill from %s to %s", day, backfill_date)
+            logger.debug("Continuing to backfill from %s to %s", day, backfill_date)
 
     return finished
 
 
 def get_env_var(var, required = False):
     if var in os.environ:
-        logging.debug("%s: %s", var, os.environ[var])
+        logger.debug("%s: %s", var, os.environ[var])
         return os.environ[var]
 
     else:
@@ -171,23 +164,43 @@ def poll_network(config):
             finished = poll(receiver, day)
 
             if finished:
-                logging.info("All done with receiver %s.", receiver['station'])
+                logger.info("All done with receiver %s.", receiver['station'])
                 receivers.remove(receiver)
 
-    logging.info("All done with network %s.", config['name'])
+        logger.info("All done with network %s.", config['name'])
+
+
+def setup_logging():
+    global logger
+    logger = logging.getLogger("")
+    logger.setLevel(logging.DEBUG)
+
+    ch = logging.StreamHandler()
+    logger.addHandler(ch)
+
+    try:
+        subject = "gpspull logs"
+        handler = BufferingSMTPHandler(os.environ['MAILHOST'],
+                                       os.environ['SENDER'],
+                                       os.environ['RECIPIENT'], subject, 1000,
+                                       "%(levelname)s - %(message)s")
+        handler.setLevel(logging.ERROR)
+        logger.addHandler(handler)
+    except KeyError:
+        logger.info("SMTP logging not configured.")
 
 
 def main():
     """Where it all begins."""
 
-    logging.basicConfig(level=logging.DEBUG)
+    setup_logging()
     validate_env()
     config = parse_config(pathlib.Path(env['config_file']))
 
     procs = []
     for network in config['networks']:
         if 'disabled' in network and network['disabled']:
-            print ("Network {} is disabled, skiping it.".format(network['name']))
+            logger.info("Network %s is disabled, skiping it.", network['name'])
         else:
             p = Process(target=poll_network, args=(network,))
             procs.append(p)
@@ -196,7 +209,7 @@ def main():
     for proc in procs:
         proc.join()
 
-    logging.debug("That's all for now, bye.")
+    logger.debug("That's all for now, bye.")
     logging.shutdown()
 
 
