@@ -65,6 +65,9 @@ def parse_config(config_file):
 
 
 def setRecvSpeed(curl, speed):
+    if speed < 1:
+        return
+    
     def sockoptfunction(curlfd, purpose):
         logging.debug("Setting RECV_SPEED to %s b/s", speed)
         sock = socket.socket(fileno=curlfd)
