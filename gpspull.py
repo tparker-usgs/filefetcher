@@ -181,12 +181,20 @@ def main():
     validate_env()
     config = parse_config(pathlib.Path(env['config_file']))
 
+    procs = []
     for network in config['networks']:
         if 'disabled' in network and network['disabled']:
             print ("Network {} is disabled, skiping it.".format(network['name']))
         else:
             p = Process(target=poll_network, args=(network,))
+            procs.append(p)
             p.start()
+
+    for proc in procs:
+        proc.join()
+
+    logging.debug("That's all for now, bye.")
+    logging.shutdown()
 
 
 if __name__ == '__main__':
