@@ -148,17 +148,21 @@ def get_env_var(var, required=False):
             exit_with_error(EnvironmentError(msg))
 
 
+def poll_receivers(receivers, day):
+    for receiver in receivers:
+        finished = poll(receiver, day)
+
+        if finished:
+            logger.info("All done with receiver %s.", receiver['station'])
+            receivers.remove(receiver)
+
+
 def poll_network(config):
     day = datetime.utcnow().date()
     receivers = config['receivers']
     while receivers:
         day -= timedelta(1)
-        for receiver in config['receivers']:
-            finished = poll(receiver, day)
-
-            if finished:
-                logger.info("All done with receiver %s.", receiver['station'])
-                receivers.remove(receiver)
+        poll_receivers(receivers, day)
 
     logger.info("All done with network %s.", config['name'])
 
