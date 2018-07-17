@@ -183,16 +183,7 @@ def setup_logging():
         logger.info("SMTP logging not configured.")
 
 
-def main():
-    """Where it all begins."""
-
-    setup_logging()
-
-    try:
-        parse_config()
-    except KeyError:
-        exit_with_error("Environment variable CONFIG_FILE not set, exiting.")
-
+def poll_networks():
     procs = []
     for network in global_config['networks']:
         if 'disabled' in network and network['disabled']:
@@ -205,6 +196,18 @@ def main():
     for proc in procs:
         proc.join()
 
+
+def main():
+    """Where it all begins."""
+
+    setup_logging()
+
+    try:
+        parse_config()
+    except KeyError:
+        exit_with_error("Environment variable CONFIG_FILE not set, exiting.")
+
+    poll_networks()
     logger.debug("That's all for now, bye.")
     logging.shutdown()
 
