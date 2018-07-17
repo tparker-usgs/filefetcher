@@ -22,13 +22,11 @@ from urllib.parse import urlparse
 import errno
 from multiprocessing import Process, Queue
 from distutils import util
+import smtplib
 
 WINDOW_SIZE_FACTOR = 2
 
 
-def exit_with_error(error):
-    exit(1)
-    
 def parse_config(config_file):
     logging.debug("Parsing config file. [%s]", config_file)
 
@@ -103,7 +101,7 @@ def poll(receiver, day):
                 c.perform()
                 os.rename(tmp_file, out_file)
         except Exception as e1:
-            logging.error("Unexpected error while retrieving file, lets set this one aside.", e1)
+            logging.error("Unexpected error while retrieving file, lets set this one aside.")
             try:
                 os.remove(out_file)
             except OSError as e2:
