@@ -20,9 +20,7 @@ import pathlib
 import ruamel.yaml
 from urllib.parse import urlparse
 import errno
-from multiprocessing import Process, Queue
-from distutils import util
-import smtplib
+from multiprocessing import Process
 from buffering_smtp_handler import BufferingSMTPHandler
 
 WINDOW_SIZE_FACTOR = 2
@@ -114,8 +112,10 @@ def poll(receiver, day):
                 c.setopt(c.WRITEDATA, f)
                 c.perform()
                 os.rename(tmp_file, out_file)
-        except Exception as e1:
-            logger.error("Unexpected error while retrieving file, lets set this one aside.")
+        except Exception:
+            msg = "Unexpected error while retrieving file, " \
+                  + "lets set this one aside."
+            logger.error(msg)
             try:
                 os.remove(out_file)
             except OSError as e2:
@@ -124,17 +124,20 @@ def poll(receiver, day):
             return True
 
     if 'backfill' in receiver:
-        backfill_date = datetime.strptime(receiver['backfill'], '%m/%d/%Y').date()
+        backfill_date = datetime.strptime(receiver['backfill'], '%m/%d/%Y')
+        backfill_date = backfill_date.date()
         if day > backfill_date:
-            logger.info("Continuing to backfill from %s to %s", day, backfill_date)
+            logger.info("Continuing to backfill from %s to %s", day,
+                        backfill_date)
             finished = False
         else:
-            logger.debug("Continuing to backfill from %s to %s", day, backfill_date)
+            logger.debug("Continuing to backfill from %s to %s", day,
+                         backfill_date)
 
     return finished
 
 
-def get_env_var(var, required = False):
+def get_env_var(var, required=False):
     if var in os.environ:
         logger.debug("%s: %s", var, os.environ[var])
         return os.environ[var]
@@ -148,7 +151,7 @@ def get_env_var(var, required = False):
 def validate_env():
     global env
     env = {}
-    env['config_file'] = get_env_var('CONFIG_FILE', required = True)
+    env['config_file'] = get_env_var('CONFIG_FILE', required=True)
 
     env['smpt_server'] = get_env_var('SMTP_SERVER')
     env['smpt_recipient'] = get_env_var('SMTP_RECIPIENT')
