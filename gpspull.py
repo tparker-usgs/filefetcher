@@ -26,6 +26,21 @@ import smtplib
 
 WINDOW_SIZE_FACTOR = 2
 
+env = None
+
+def exit_with_error(error):
+    if 'smtp_Server' in env:
+        msg = "To: %s\n".format(env['smtp_recipient'])
+        msg += "From: %s\n".format(env['smtp_sender'])
+        msg += "Subject: fatal gpspull error\n"
+        msg += "\n"
+        msg += "gpspull exited with error:\n"
+        msg += error
+    else:
+        print(error)
+
+    sys.exit(1)
+
 
 def parse_config(config_file):
     logging.debug("Parsing config file. [%s]", config_file)
@@ -35,13 +50,16 @@ def parse_config(config_file):
         config = yaml.load(config_file)
     except ruamel.yaml.parser.ParserError as e1:
         logging.error("Cannot parse config file")
-        exit(1)
+        exit_with_error(e1)
     except OSError as e:
         if e.errno == errno.EEXIST:
             logging.error("Cannot read config file %s", config_file)
-            exit(1)
+            exit_with_error(e)
         else:
             raise
+
+    global global_config
+    global_config = config
 
     return config
 
@@ -120,21 +138,25 @@ def poll(receiver, day):
     return finished
 
 
-def get_env_var(var):
+def get_env_var(var, required = False):
     if var in os.environ:
         logging.debug("%s: %s", var, os.environ[var])
         return os.environ[var]
 
     else:
-        print("Envionment variable {} not set, exiting.".format(var))
-        sys.exit(1)
+        if required:
+            msg = "Envionment variable {} not set, exiting.".format(var)
+            exit_with_error(EnvironmentError(msg))
 
 
 def validate_env():
+    global env
     env = {}
-    env['config_file'] = get_env_var('CONFIG_FILE')
+    env['config_file'] = get_env_var('CONFIG_FILE', required = True)
 
-    return env
+    env['smpt_server'] = get_env_var('SMTP_SERVER')
+    env['smpt_recipient'] = get_env_var('SMTP_RECIPIENT')
+    env['smpt_sender'] = get_env_var('SMTP_SENDER')
 
 
 def poll_network(config):
@@ -156,7 +178,7 @@ def main():
     """Where it all begins."""
 
     logging.basicConfig(level=logging.DEBUG)
-    env = validate_env()
+    validate_env()
     config = parse_config(pathlib.Path(env['config_file']))
 
     for network in config['networks']:
