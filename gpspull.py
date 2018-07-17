@@ -17,7 +17,7 @@ import socket
 import struct
 import pycurl
 import pathlib
-from ruamel.yaml import YAML
+import ruamel.yaml
 from urllib.parse import urlparse
 import errno
 from multiprocessing import Process, Queue
@@ -26,12 +26,17 @@ from distutils import util
 WINDOW_SIZE_FACTOR = 2
 
 
+def exit_with_error(error):
+
 def parse_config(config_file):
     logging.debug("Parsing config file. [%s]", config_file)
 
-    yaml = YAML()
+    yaml = ruamel.yaml.YAML()
     try:
         config = yaml.load(config_file)
+    except ruamel.yaml.parser.ParserError as e1:
+        logging.error("Cannot parse config file")
+        exit(1)
     except OSError as e:
         if e.errno == errno.EEXIST:
             logging.error("Cannot read config file %s", config_file)
@@ -101,7 +106,7 @@ def poll(receiver, day):
             try:
                 os.remove(out_file)
             except OSError as e2:
-                if e2.errno != errno.EEXIST:
+                if e2.errno != errno.ENOENT:
                     raise
             return True
 
