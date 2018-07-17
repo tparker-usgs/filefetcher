@@ -1,4 +1,3 @@
 pycurl
-python-dateutil
 ruamel_yaml
 buffering-smtp-handler
