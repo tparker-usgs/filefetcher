@@ -30,10 +30,12 @@ env = None
 
 def exit_with_error(error):
     logger.error(error)
+    logging.shutdown()
     sys.exit(1)
 
 
-def parse_config(config_file):
+def parse_config():
+    config_file = pathlib.Path(os.environ['CONFIG_FILE'])
     logger.debug("Parsing config file. [%s]", config_file)
 
     yaml = ruamel.yaml.YAML()
@@ -51,8 +53,6 @@ def parse_config(config_file):
 
     global global_config
     global_config = config
-
-    return config
 
 
 def setRecvSpeed(curl, speed):
@@ -148,16 +148,6 @@ def get_env_var(var, required=False):
             exit_with_error(EnvironmentError(msg))
 
 
-def validate_env():
-    global env
-    env = {}
-    env['config_file'] = get_env_var('CONFIG_FILE', required=True)
-
-    env['smpt_server'] = get_env_var('SMTP_SERVER')
-    env['smpt_recipient'] = get_env_var('SMTP_RECIPIENT')
-    env['smpt_sender'] = get_env_var('SMTP_SENDER')
-
-
 def poll_network(config):
     day = datetime.utcnow().date()
     receivers = config['receivers']
@@ -170,7 +160,7 @@ def poll_network(config):
                 logger.info("All done with receiver %s.", receiver['station'])
                 receivers.remove(receiver)
 
-        logger.info("All done with network %s.", config['name'])
+    logger.info("All done with network %s.", config['name'])
 
 
 def setup_logging():
@@ -197,11 +187,14 @@ def main():
     """Where it all begins."""
 
     setup_logging()
-    validate_env()
-    config = parse_config(pathlib.Path(env['config_file']))
+
+    try:
+        parse_config()
+    except KeyError:
+        exit_with_error("Environment variable CONFIG_FILE not set, exiting.")
 
     procs = []
-    for network in config['networks']:
+    for network in global_config['networks']:
         if 'disabled' in network and network['disabled']:
             logger.info("Network %s is disabled, skiping it.", network['name'])
         else:
