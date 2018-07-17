@@ -193,9 +193,7 @@ def poll_networks():
             procs.append(p)
             p.start()
 
-    for proc in procs:
-        proc.join()
-
+    return procs
 
 def main():
     """Where it all begins."""
@@ -207,7 +205,10 @@ def main():
     except KeyError:
         exit_with_error("Environment variable CONFIG_FILE not set, exiting.")
 
-    poll_networks()
+    procs = poll_networks()
+    for proc in procs:
+        proc.join()
+
     logger.debug("That's all for now, bye.")
     logging.shutdown()
 
