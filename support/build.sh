@@ -1,4 +1,4 @@
-docker build -t gpspull .
+docker build -t filefetcher .
 
 VERSION=`cat VERSION`
-docker tag gpspull:latest gpspull:$VERSION
+docker tag filefetcher:latest filefetcher:$VERSION

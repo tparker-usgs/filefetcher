@@ -1,4 +1,4 @@
-# Example gpspull configuration file in YAML 1.2 format.
+# Example filefetcher configuration file in YAML 1.2 format.
 
 # Required parameters
 #
@@ -15,7 +15,7 @@
 #           date.
 
 defaults: &DEFAULTS
-  out_dir: /GPS/gpspull
+  out_dir: /GPS/filefetcher
   recvSpeed: 640
 
 septentrio: &SEPTENTRIO

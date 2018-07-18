@@ -35,7 +35,7 @@ def exit_with_error(error):
 
 
 def parse_config():
-    config_file = pathlib.Path(os.environ['CONFIG_FILE'])
+    config_file = pathlib.Path(os.environ['FF_CONFIG_FILE'])
     logger.debug("Parsing config file. [%s]", config_file)
 
     yaml = ruamel.yaml.YAML()
@@ -198,10 +198,10 @@ def setup_logging():
     logger.addHandler(ch)
 
     try:
-        subject = "gpspull logs"
+        subject = "filefetcher logs"
         handler = BufferingSMTPHandler(os.environ['MAILHOST'],
-                                       os.environ['SENDER'],
-                                       os.environ['RECIPIENT'], subject, 1000,
+                                       os.environ['FF_SENDER'],
+                                       os.environ['FF_RECIPIENT'], subject, 1000,
                                        "%(levelname)s - %(message)s")
         handler.setLevel(logging.ERROR)
         logger.addHandler(handler)
@@ -229,7 +229,7 @@ def main():
     try:
         parse_config()
     except KeyError:
-        exit_with_error("Environment variable CONFIG_FILE not set, exiting.")
+        exit_with_error("Environment variable FF_CONFIG_FILE not set, exiting.")
 
     procs = poll_networks()
     for proc in procs:
