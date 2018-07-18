@@ -215,7 +215,7 @@ def poll_queues():
         if 'disabled' in queue and queue['disabled']:
             logger.info("Queue %s is disabled, skiping it.", queue['name'])
         else:
-            p = Process(target=poll_queue, args=(network,))
+            p = Process(target=poll_queue, args=(queue,))
             procs.append(p)
             p.start()
 
