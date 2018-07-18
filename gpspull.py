@@ -134,7 +134,7 @@ def fetch_file(c, out_file):
         msg = "Unexpected error while retrieving file, " \
               + "lets set this one aside."
         logger.error(msg)
-        remove_file(file)
+        remove_file(out_file)
         return True
 
     return False
