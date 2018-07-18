@@ -77,11 +77,11 @@ def setRecvSpeed(curl, speed):
     curl.setopt(curl.MAX_RECV_SPEED_LARGE, speed)
 
 
-def backfill_finished(receiver, day):
-    if 'backfill' not in receiver:
+def backfill_finished(datalogger, day):
+    if 'backfill' not in datalogger:
         return True
 
-    backfill_date = datetime.strptime(receiver['backfill'], '%m/%d/%Y')
+    backfill_date = datetime.strptime(datalogger['backfill'], '%m/%d/%Y')
     backfill_date = backfill_date.date()
     if day > backfill_date:
         logger.info("Continuing to backfill from %s to %s", day,
@@ -93,14 +93,14 @@ def backfill_finished(receiver, day):
         return True
 
 
-def create_curl(receiver, url):
+def create_curl(datalogger, url):
     c = pycurl.Curl()
     c.setopt(c.VERBOSE, True)
-    if 'userpw' in receiver:
-        c.setopt(pycurl.USERPWD, receiver['userpw'])
+    if 'userpw' in datalogger:
+        c.setopt(pycurl.USERPWD, datalogger['userpw'])
 
-    if 'recvSpeed' in receiver:
-        setRecvSpeed(c, receiver['recvSpeed'])
+    if 'recvSpeed' in datalogger:
+        setRecvSpeed(c, datalogger['recvSpeed'])
 
     c.setopt(c.URL, url)
 
@@ -140,12 +140,12 @@ def fetch_file(c, out_file):
     return False
 
 
-def poll(receiver, day):
-    url = day.strftime(receiver['url']) % receiver
-    c = create_curl(receiver, url)
+def poll(datalogger, day):
+    url = day.strftime(datalogger['url']) % datalogger
+    c = create_curl(datalogger, url)
 
     url_parts = urlparse(url)
-    out_base = pathlib.Path(receiver['out_dir']) / receiver['station']
+    out_base = pathlib.Path(receiver['out_dir']) / datalogger['name']
     make_out_dir(out_base / os.path.dirname(url_parts.path)[1:])
 
     out_file = out_base / url_parts.path[1:]
@@ -170,23 +170,23 @@ def get_env_var(var, required=False):
             exit_with_error(EnvironmentError(msg))
 
 
-def poll_receivers(receivers, day):
-    for receiver in receivers:
-        finished = poll(receiver, day)
+def poll_loggers(dataloggers, day):
+    for datalogger in dataloggers:
+        finished = poll(datalogger, day)
 
         if finished:
-            logger.info("All done with receiver %s.", receiver['station'])
-            receivers.remove(receiver)
+            logger.info("All done with logger %s.", logger['name'])
+            loggers.remove(datalogger)
 
 
-def poll_network(config):
+def poll_queue(config):
     day = datetime.utcnow().date()
-    receivers = config['receivers']
-    while receivers:
+    receivers = config['dataloggers']
+    while dataloggers:
         day -= timedelta(1)
-        poll_receivers(receivers, day)
+        poll_loggers(dataloggers, day)
 
-    logger.info("All done with network %s.", config['name'])
+    logger.info("All done with queue %s.", config['name'])
 
 
 def setup_logging():
@@ -209,13 +209,13 @@ def setup_logging():
         logger.info("SMTP logging not configured.")
 
 
-def poll_networks():
+def poll_queues():
     procs = []
-    for network in global_config['networks']:
-        if 'disabled' in network and network['disabled']:
-            logger.info("Network %s is disabled, skiping it.", network['name'])
+    for network in global_config['queues']:
+        if 'disabled' in queues and queues['disabled']:
+            logger.info("Queue %s is disabled, skiping it.", queues['name'])
         else:
-            p = Process(target=poll_network, args=(network,))
+            p = Process(target=poll_queue, args=(network,))
             procs.append(p)
             p.start()
 
@@ -231,7 +231,7 @@ def main():
     except KeyError:
         exit_with_error("Environment variable FF_CONFIG_FILE not set, exiting.")
 
-    procs = poll_networks()
+    procs = poll_queues()
     for proc in procs:
         proc.join()
 

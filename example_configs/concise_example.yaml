@@ -26,38 +26,38 @@ trimble: &TRIMBLE
   <<: *DEFAULTS
   url: ftp://%%(address)s/%Y%m/a/%%(station)s%Y%m%d0000a.T00
 
-networks:
+queues:
     -- name: spurr
-       receivers:
-         - station: SPBG
+       dataloggers:
+         - name: SPBG
            <<: *SEPTENTRIO
            address: 10.0.0.1
        
-         - station: SPCR
+         - name: SPCR
            <<: *SEPTENTRIO
            address: 10.0.0.2
        
-        - station: SPCG
+        - name: SPCG
            <<: *TRIMBLE
            address: 10.0.0.3
        
-         - station: SPCP
+         - name: SPCP
            <<: *TRIMBLE
            address: 10.0.0.4
     -- name: okmok
-       receivers:
-         - station: OKCE
+       dataloggers:
+         - name: OKCE
            <<: *SEPTENTRIO
            address: 10.0.0.5
        
-         - station: OKNC
+         - name: OKNC
            <<: *SEPTENTRIO
            address: 10.0.0.6
        
-        - station: OKFG
+        - name: OKFG
            <<: *TRIMBLE
            address: 10.0.0.7
        
-         - station: OKSO
+         - name: OKSO
            <<: *TRIMBLE
            address: 10.0.0.8
