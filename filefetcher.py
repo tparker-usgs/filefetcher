@@ -115,6 +115,7 @@ def make_out_dir(dir):
         if e.errno != errno.EEXIST:
             raise
 
+
 def remove_file(file):
     try:
         os.remove(file)
@@ -204,8 +205,8 @@ def setup_logging():
         subject = "filefetcher logs"
         handler = BufferingSMTPHandler(os.environ['MAILHOST'],
                                        os.environ['FF_SENDER'],
-                                       os.environ['FF_RECIPIENT'], subject, 1000,
-                                       "%(levelname)s - %(message)s")
+                                       os.environ['FF_RECIPIENT'], subject,
+                                       1000, "%(levelname)s - %(message)s")
         handler.setLevel(logging.ERROR)
         logger.addHandler(handler)
     except KeyError:
@@ -224,6 +225,7 @@ def poll_queues():
 
     return procs
 
+
 def main():
     """Where it all begins."""
 
@@ -232,7 +234,8 @@ def main():
     try:
         parse_config()
     except KeyError:
-        exit_with_error("Environment variable FF_CONFIG_FILE not set, exiting.")
+        msg = "Environment variable FF_CONFIG_FILE not set, exiting."
+        exit_with_error(msg)
 
     procs = poll_queues()
     for proc in procs:
