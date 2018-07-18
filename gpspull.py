@@ -115,9 +115,28 @@ def make_out_dir(dir):
         if e.errno != errno.EEXIST:
             raise
 
-def poll(receiver, day):
-    finished = False
+def fetch_file(c, out_file):
+    try:
+        tmp_file = str(out_file) + ".tmp"
+        with open(tmp_file, 'wb') as f:
+            c.setopt(c.WRITEDATA, f)
+            c.perform()
+            os.rename(tmp_file, out_file)
+    except Exception:
+        msg = "Unexpected error while retrieving file, " \
+              + "lets set this one aside."
+        logger.error(msg)
+        try:
+            os.remove(out_file)
+        except OSError as e2:
+            if e2.errno != errno.ENOENT:
+                raise
+        return True
 
+    return False
+
+
+def poll(receiver, day):
     url = day.strftime(receiver['url']) % receiver
     c = create_curl(receiver, url)
 
@@ -131,22 +150,7 @@ def poll(receiver, day):
         finished = True
     else:
         logger.info("Fetching %s from %s", out_file, url)
-        try:
-            tmp_file = str(out_file) + ".tmp"
-            with open(tmp_file, 'wb') as f:
-                c.setopt(c.WRITEDATA, f)
-                c.perform()
-                os.rename(tmp_file, out_file)
-        except Exception:
-            msg = "Unexpected error while retrieving file, " \
-                  + "lets set this one aside."
-            logger.error(msg)
-            try:
-                os.remove(out_file)
-            except OSError as e2:
-                if e2.errno != errno.ENOENT:
-                    raise
-            return True
+        finished = fetch_file(c, out_file)
 
     return finished and backfill_finished(receiver, day)
 
