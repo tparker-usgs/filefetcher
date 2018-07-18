@@ -115,6 +115,14 @@ def make_out_dir(dir):
         if e.errno != errno.EEXIST:
             raise
 
+def remove_file(file):
+    try:
+        os.remove(file)
+    except OSError as e2:
+        if e2.errno != errno.ENOENT:
+            raise
+
+
 def fetch_file(c, out_file):
     try:
         tmp_file = str(out_file) + ".tmp"
@@ -126,11 +134,7 @@ def fetch_file(c, out_file):
         msg = "Unexpected error while retrieving file, " \
               + "lets set this one aside."
         logger.error(msg)
-        try:
-            os.remove(out_file)
-        except OSError as e2:
-            if e2.errno != errno.ENOENT:
-                raise
+        remove_file(file)
         return True
 
     return False
