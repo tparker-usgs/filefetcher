@@ -175,7 +175,7 @@ def poll_loggers(dataloggers, day):
         finished = poll(datalogger, day)
 
         if finished:
-            logger.info("All done with logger %s.", logger['name'])
+            logger.info("All done with logger %s.", datalogger['name'])
             loggers.remove(datalogger)
 
 
