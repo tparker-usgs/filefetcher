@@ -77,8 +77,23 @@ def setRecvSpeed(curl, speed):
     curl.setopt(curl.MAX_RECV_SPEED_LARGE, speed)
 
 
-def poll(receiver, day):
-    finished = False
+def backfill_finished(receiver, day):
+    if 'backfill' not in receiver:
+        return True
+
+    backfill_date = datetime.strptime(receiver['backfill'], '%m/%d/%Y')
+    backfill_date = backfill_date.date()
+    if day > backfill_date:
+        logger.info("Continuing to backfill from %s to %s", day,
+                    backfill_date)
+        return False
+    else:
+        logger.debug("Continuing to backfill from %s to %s", day,
+                     backfill_date)
+        return True
+
+
+def create_curl(receiver, url):
     c = pycurl.Curl()
     c.setopt(c.VERBOSE, True)
     if 'userpw' in receiver:
@@ -87,18 +102,28 @@ def poll(receiver, day):
     if 'recvSpeed' in receiver:
         setRecvSpeed(c, receiver['recvSpeed'])
 
-    url = day.strftime(receiver['url']) % receiver
     c.setopt(c.URL, url)
 
-    url_parts = urlparse(url)
-    out_base = pathlib.Path(receiver['out_dir']) / receiver['station']
+    return c
+
+
+def make_out_dir(dir):
     try:
-        out_dir = out_base / os.path.dirname(url_parts.path)[1:]
-        os.makedirs(out_dir)
-        logger.info("Created %s", out_dir)
+        os.makedirs(dir)
+        logger.info("Created %s", dir)
     except OSError as e:
         if e.errno != errno.EEXIST:
             raise
+
+def poll(receiver, day):
+    finished = False
+
+    url = day.strftime(receiver['url']) % receiver
+    c = create_curl(receiver, url)
+
+    url_parts = urlparse(url)
+    out_base = pathlib.Path(receiver['out_dir']) / receiver['station']
+    make_out_dir(out_base / os.path.dirname(url_parts.path)[1:])
 
     out_file = out_base / url_parts.path[1:]
     if os.path.exists(out_file):
@@ -123,18 +148,7 @@ def poll(receiver, day):
                     raise
             return True
 
-    if 'backfill' in receiver:
-        backfill_date = datetime.strptime(receiver['backfill'], '%m/%d/%Y')
-        backfill_date = backfill_date.date()
-        if day > backfill_date:
-            logger.info("Continuing to backfill from %s to %s", day,
-                        backfill_date)
-            finished = False
-        else:
-            logger.debug("Continuing to backfill from %s to %s", day,
-                         backfill_date)
-
-    return finished
+    return finished and backfill_finished(receiver, day)
 
 
 def get_env_var(var, required=False):
