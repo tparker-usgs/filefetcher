@@ -211,9 +211,9 @@ def setup_logging():
 
 def poll_queues():
     procs = []
-    for network in global_config['queues']:
-        if 'disabled' in queues and queues['disabled']:
-            logger.info("Queue %s is disabled, skiping it.", queues['name'])
+    for queue in global_config['queues']:
+        if 'disabled' in queue and queue['disabled']:
+            logger.info("Queue %s is disabled, skiping it.", queue['name'])
         else:
             p = Process(target=poll_queue, args=(network,))
             procs.append(p)
