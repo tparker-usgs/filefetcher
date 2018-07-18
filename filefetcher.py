@@ -145,7 +145,7 @@ def poll(datalogger, day):
     c = create_curl(datalogger, url)
 
     url_parts = urlparse(url)
-    out_base = pathlib.Path(receiver['out_dir']) / datalogger['name']
+    out_base = pathlib.Path(datalogger['out_dir']) / datalogger['name']
     make_out_dir(out_base / os.path.dirname(url_parts.path)[1:])
 
     out_file = out_base / url_parts.path[1:]
@@ -156,7 +156,7 @@ def poll(datalogger, day):
         logger.info("Fetching %s from %s", out_file, url)
         finished = fetch_file(c, out_file)
 
-    return finished and backfill_finished(receiver, day)
+    return finished and backfill_finished(datalogger, day)
 
 
 def get_env_var(var, required=False):
