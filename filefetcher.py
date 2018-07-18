@@ -176,7 +176,7 @@ def poll_loggers(dataloggers, day):
 
         if finished:
             logger.info("All done with logger %s.", datalogger['name'])
-            loggers.remove(datalogger)
+            dataloggers.remove(datalogger)
 
 
 def poll_queue(config):
