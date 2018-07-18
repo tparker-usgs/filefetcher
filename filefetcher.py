@@ -141,6 +141,9 @@ def fetch_file(c, out_file):
 
 
 def poll(datalogger, day):
+    if 'disabled' in datalogger and datalogger['disabled']:
+        return True
+
     url = day.strftime(datalogger['url']) % datalogger
     c = create_curl(datalogger, url)
 
