@@ -181,7 +181,7 @@ def poll_loggers(dataloggers, day):
 
 def poll_queue(config):
     day = datetime.utcnow().date()
-    receivers = config['dataloggers']
+    dataloggers = config['dataloggers']
     while dataloggers:
         day -= timedelta(1)
         poll_loggers(dataloggers, day)
