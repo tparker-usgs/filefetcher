@@ -21,8 +21,14 @@ filefetcher will, optionally, generate an email if error events are logged. To e
 
 ### Configuration File
 
-The filefetcher configuration file is formatted in [YAML](http://yaml.org/) 1.2. YAML is an expressive language and there are multiple ways to write a configuration file. Some examples are found in the example_configs directory.
+The filefetcher configuration file is formatted in [YAML](http://yaml.org/). YAML is an expressive language and there are multiple ways to write a configuration file. Some examples are found in the example_configs directory.
 
-The filefetcher configuration conists of a list of queues, which are processed concurrently. Each queue defines a list of dataloggers which will be polled in sequqnce. This allows filefetcher to retrive files quickly while avoiding overwhelming the underlaying networks. Each queue has a name, a list of data loggers, and optionally a flag to indicate that the queue should not be processed.
+The filefetcher configuration conists of a list of queues which are processed concurrently. Each queue defines a list of dataloggers which are polled in sequqnce. This allows filefetcher to retrive files quickly while accommodating networks which may be stressed and have limited bandwidth available for the transfer of files. Each queue has a name and a list of data loggers. Optionally a boolean value may be set to indicate that the queue should not be processed, thus providing a way to pause polling of that queue without having to remove the configuration.
 
-Each entry in the data logger list represents a single remote data logger and has a name, an address, a pattern for formatting URLs for the remote files, a location for retrieved files, and optionally a maximum transfer speed in bytes per second.
+Each entry in the data logger list represents a single remote data logger and has a name, an address, a pattern for formatting URLs for the remote files, and a location for retrieved files. Optionally a maximum transfer speed in bytes per second may be given. As with queues, polling of individual data loggers may also be paused. Data logger entries may also have a backfill directive, which will be explained below.
+
+## Running
+
+filefetcher is run by executing the filefetcher.py script. At launch, filefetcher will read its environment variables, parse its config file and start polling. Polling will proceede one day at a time, polling each data logger for a given day before stepping back in time one day. Once filefetcher finds a daily file that has already been retrieved, or a daily file that cannot be retrieved from the remote data logger, polling for that logger will stop. Once polling for all data loggers in a queue has stopped, that polling process will exit. Once all polling processes have exited filefetcher will email any errors if configured to do so and will exit.
+
+If a data logger entry has a backfill value, the process for exiting described above will be side stepped. Instead, polling will continue for all missing files day-by-day until the backfill date has been reached. 
