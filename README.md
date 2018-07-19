@@ -4,6 +4,10 @@
 
 Retrieve files from remote dataloggers, while minimizing the impact on stressed telemetry links.
 
+## Instalation
+
+filefetcher consits of a single python file. No instalation is necessary beyond making sure that its depdancies are installed. This can be done with `pip install -r requirements.txt`.
+
 ## Configuration
 
 ### Environment Variables
