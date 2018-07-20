@@ -10,11 +10,11 @@ Retrieve files from remote dataloggers, while minimizing the impact on stressed 
 
 
 
-## Instalation
+## Installation
 
 
 
-filefetcher consits of a single python file. No instalation is necessary beyond making sure that its depdancies are met. This can be done with `pip install -r requirements.txt`.
+filefetcher consists of a single python file. No installation is necessary beyond making sure that its dependancies are met. This can be done with `pip install -r requirements.txt`.
 
 
 
@@ -26,7 +26,7 @@ filefetcher consits of a single python file. No instalation is necessary beyond 
 
 
 
-filefetcher looks to its environemnt for inital configuration. See example_configs/example.env for an example.
+filefetcher looks to its environment for initial configuration. See example_configs/example.env for an example.
 
 
 
@@ -38,7 +38,7 @@ There is one required environment variable.
 
 
 
-filefetcher will, optionally, generate an email if error events are logged. To enable this behavior, three additional environemnt variables are required.
+filefetcher will, optionally, generate an email if error events are logged. To enable this behavior, three additional environment variables are required.
 
   * **MAILHOST** Hostname or IP address of mail forwarder.
 
@@ -72,7 +72,7 @@ Each entry in the data logger list represents a single remote data logger. It ha
 
 
 
-filefetcher is run by executing the filefetcher.py script. At launch, filefetcher will read its environment variables, parse its config file and start polling. Polling will proceede one day at a time, polling each data logger for a given day before stepping back in time one day. Once filefetcher finds a daily file that has already been retrieved, or a daily file that cannot be retrieved from the remote data logger, polling for that logger will stop. Once polling for all data loggers in a queue has stopped, that polling process will exit. Once all polling processes have exited filefetcher will email any errors if configured to do so and will exit.
+filefetcher is run by executing the filefetcher.py script. At launch, filefetcher will read its environment variables, parse its config file and start polling. Polling will proceed one day at a time, polling each data logger for a given day before stepping back in time one day. Once filefetcher finds a daily file that has already been retrieved, or a daily file that cannot be retrieved from the remote data logger, polling for that logger will stop. Once polling for all data loggers in a queue has stopped, that polling process will exit. Once all polling processes have exited filefetcher will email any errors if configured to do so and will exit.
 
 
 
