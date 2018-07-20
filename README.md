@@ -84,5 +84,5 @@ If a data logger entry has a backfill value, the process for exiting described a
 
 
 
-filefetcher runs well in a docker container. All files necessary to build an image are in the support/ directory, most will need to be tweaked for your environment. Start with support/build.sh and go from there.  
+filefetcher runs well in a docker container. All files necessary to build an image are in the support/ directory. Most will need to be tweaked for your environment. Start with support/build.sh and go from there.  
 
