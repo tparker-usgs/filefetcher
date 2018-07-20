@@ -37,7 +37,7 @@ queues:
            <<: *SEPTENTRIO
            address: 10.0.0.2
        
-        - name: SPCG
+         - name: SPCG
            <<: *TRIMBLE
            address: 10.0.0.3
        
@@ -54,7 +54,7 @@ queues:
            <<: *SEPTENTRIO
            address: 10.0.0.6
        
-        - name: OKFG
+         - name: OKFG
            <<: *TRIMBLE
            address: 10.0.0.7
        

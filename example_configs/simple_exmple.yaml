@@ -29,7 +29,7 @@ queues:
         url: ftp://%%(address)s/DSK1/SSN/LOG1_A/%y%j/SPCR%j0.%y_
         address: 10.0.0.2
     
-     - name: SPCG
+      - name: SPCG
         out_dir: /GPS/filefetcher
         recvSpeed: 640
         url: ftp://%%(address)s/%Y%m/a/SPCG%Y%m%d0000a.T00
@@ -54,7 +54,7 @@ queues:
         url: ftp://%%(address)s/DSK1/SSN/LOG1_A/%y%j/SPCR%j0.%y_
         address: 10.0.0.6
     
-     - name: OKFG
+      - name: OKFG
         out_dir: /GPS/filefetcher
         recvSpeed: 640
         url: ftp://%%(address)s/%Y%m/a/SPCG%Y%m%d0000a.T00
