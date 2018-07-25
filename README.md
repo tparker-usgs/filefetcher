@@ -35,7 +35,9 @@ There is one required environment variable.
   * **FF_CONFIG_FILE** Path to configuration file.
 
 
+filefetcher will, optionally, use a provided directory to hold files as they're being received. This avoids creating temp files in the working directory. If no temp directory is provided, temp files will be written in the working directory.
 
+  * **FF_TMP_DIR** Directory used for temp files.
 
 
 filefetcher will, optionally, generate an email if error events are logged. To enable this behavior, three additional environment variables are required.
@@ -84,5 +86,8 @@ If a data logger entry has a backfill value, the process for exiting described a
 
 
 
-filefetcher runs well in a docker container. All files necessary to build an image are in the support/ directory. Most will need to be tweaked for your environment. Start with support/build.sh and go from there.  
+filefetcher runs well in a docker container. All files necessary to build an image are in the support/ directory. Most will need to be tweaked for your environment. Start with support/build.sh and go from there.
+
+There is one environment variable specific to the docker image.
+  * **FF_LOG_DIR** Location of the log directory.
 
