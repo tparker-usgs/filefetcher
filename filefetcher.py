@@ -125,8 +125,10 @@ def remove_file(file):
 
 
 def fetch_file(c, out_file):
+    tmp_dir = get_env_var("FF_TMP_DIR", default=".")
+    tmp_file = pathlib.Path(tmp_dir) / (str(out_file) + ".tmp")
+
     try:
-        tmp_file = str(out_file) + ".tmp"
         with open(tmp_file, 'wb') as f:
             c.setopt(c.WRITEDATA, f)
             c.perform()
@@ -141,7 +143,7 @@ def fetch_file(c, out_file):
     return False
 
 
-def poll(datalogger, day):
+def poll_logger(datalogger, day):
     if 'disabled' in datalogger and datalogger['disabled']:
         return True
 
@@ -163,7 +165,7 @@ def poll(datalogger, day):
     return finished and backfill_finished(datalogger, day)
 
 
-def get_env_var(var, required=False):
+def get_env_var(var, required=False, default=None):
     if var in os.environ:
         logger.debug("%s: %s", var, os.environ[var])
         return os.environ[var]
@@ -172,11 +174,12 @@ def get_env_var(var, required=False):
         if required:
             msg = "Envionment variable {} not set, exiting.".format(var)
             exit_with_error(EnvironmentError(msg))
-
+        else:
+            return default
 
 def poll_loggers(dataloggers, day):
     for datalogger in dataloggers:
-        finished = poll(datalogger, day)
+        finished = poll_logger(datalogger, day)
 
         if finished:
             logger.info("All done with logger %s.", datalogger['name'])
