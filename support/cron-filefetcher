@@ -1,4 +1,4 @@
 PATH=/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/app/filefetcher
 
 10 * * * * root filefetcher.py > $FF_LOG_DIR/filefetcher_`date -u "+\%Y\%m\%d"` 2>&1
-0 0 * * * root find $FF_LOG_DIR -mtime +14 -exec rm {} \;
+0 0 * * * root find $FF_LOG_DIR -name 'filefetcher_*' -mtime +14 -exec rm {} \;
