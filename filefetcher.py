@@ -134,9 +134,9 @@ def fetch_file(c, out_file):
             c.perform()
             os.rename(tmp_file, out_file)
     except Exception:
-        msg = "Unexpected error while retrieving file, " \
+        msg = "Unexpected error while retrieving %s, " \
               + "lets set this one aside."
-        logger.error(msg)
+        logger.error(msg, out_file)
         remove_file(out_file)
         return True
 
