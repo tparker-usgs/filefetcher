@@ -19,15 +19,15 @@ WORKDIR /usr/share/ca-certificates/extra
 ADD support/DOIRootCA2.cer DOIRootCA2.crt
 RUN echo "extra/DOIRootCA2.crt" >> /etc/ca-certificates.conf && update-ca-certificates
 
-WORKDIR /app/camfetcher
+WORKDIR /app/filefetcher
 ADD requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt # 1
 
 ADD VERSION .
-ADD camfetcher.py .
-RUN chmod 755 camfetcher.py
-ADD support/cron-camfetcher .
+ADD filefetcher.py .
+RUN chmod 755 filefetcher.py
+ADD support/cron-filefetcher .
 ADD support/run_crond.sh  .
 RUN chmod 755 run_crond.sh
 
-CMD ["/app/camfetcher/run_crond.sh"]
+CMD ["/app/filefetcher/run_crond.sh"]
