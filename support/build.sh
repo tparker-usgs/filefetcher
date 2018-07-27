@@ -1,4 +1,4 @@
-docker build -t filefetcher .
+docker build -t camfetcher .
 
 VERSION=`cat VERSION`
-docker tag filefetcher:latest filefetcher:$VERSION
+docker tag camfetcher:latest camfetcher:$VERSION

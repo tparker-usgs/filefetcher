@@ -1,0 +1,4 @@
+PATH=/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/app/camfetcher
+
+10 * * * * root camfetcher.py > $CF_LOG_DIR/camfetcher_`date -u "+\%Y\%m\%d"` 2>&1
+0 0 * * * root find $CF_LOG_DIR -name 'camfetcher_*' -mtime +14 -exec rm {} \;
