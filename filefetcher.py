@@ -145,6 +145,7 @@ def fetch_file(c, out_file):
 
 def poll_logger(datalogger, day):
     if 'disabled' in datalogger and datalogger['disabled']:
+        logger.debug("Skipping %s (disabled)", datalogger['name'])
         return True
 
     url = day.strftime(datalogger['url']) % datalogger
