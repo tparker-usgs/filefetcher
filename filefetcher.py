@@ -133,10 +133,8 @@ def fetch_file(c, out_file):
             c.setopt(c.WRITEDATA, f)
             c.perform()
             os.rename(tmp_file, out_file)
-    except Exception:
-        msg = "Unexpected error while retrieving %s, " \
-              + "lets set this one aside."
-        logger.error(msg, out_file)
+    except pycurl.error as e:
+        logger.info("Error retrieving %s: %s", out_file, e)
         remove_file(tmp_file)
         return True
 
