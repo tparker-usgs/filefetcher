@@ -194,7 +194,7 @@ def poll_queues():
 def main():
     """Where it all begins."""
 
-    setup_logging("filefetcher errors")
+    global logger = setup_logging("filefetcher errors")
 
     try:
         parse_config()
