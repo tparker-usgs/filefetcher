@@ -21,17 +21,12 @@ import ruamel.yaml
 from urllib.parse import urlparse
 import errno
 from multiprocessing import Process
-from buffering_smtp_handler import BufferingSMTPHandler
+from tomputils.util import *
+
 
 WINDOW_SIZE_FACTOR = 2
 
 env = None
-
-
-def exit_with_error(error):
-    logger.error(error)
-    logging.shutdown()
-    sys.exit(1)
 
 
 def parse_config():
@@ -164,18 +159,6 @@ def poll_logger(datalogger, day):
     return finished and backfill_finished(datalogger, day)
 
 
-def get_env_var(var, required=False, default=None):
-    if var in os.environ:
-        logger.debug("%s: %s", var, os.environ[var])
-        return os.environ[var]
-
-    else:
-        if required:
-            msg = "Envionment variable {} not set, exiting.".format(var)
-            exit_with_error(EnvironmentError(msg))
-        else:
-            return default
-
 def poll_loggers(dataloggers, day):
     for datalogger in dataloggers:
         finished = poll_logger(datalogger, day)
@@ -195,26 +178,6 @@ def poll_queue(config):
     logger.info("All done with queue %s.", config['name'])
 
 
-def setup_logging():
-    global logger
-    logger = logging.getLogger("")
-    logger.setLevel(logging.DEBUG)
-
-    ch = logging.StreamHandler()
-    logger.addHandler(ch)
-
-    try:
-        subject = "filefetcher logs"
-        handler = BufferingSMTPHandler(os.environ['MAILHOST'],
-                                       os.environ['FF_SENDER'],
-                                       os.environ['FF_RECIPIENT'], subject,
-                                       1000, "%(levelname)s - %(message)s")
-        handler.setLevel(logging.ERROR)
-        logger.addHandler(handler)
-    except KeyError:
-        logger.info("SMTP logging not configured.")
-
-
 def poll_queues():
     procs = []
     for queue in global_config['queues']:
@@ -231,7 +194,7 @@ def poll_queues():
 def main():
     """Where it all begins."""
 
-    setup_logging()
+    setup_logging("filefetcher errors")
 
     try:
         parse_config()

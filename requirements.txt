@@ -1,3 +1,3 @@
 pycurl
 ruamel_yaml
-buffering-smtp-handler
+tomputils >= 1.3.2
