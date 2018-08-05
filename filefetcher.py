@@ -30,12 +30,11 @@ env = None
 
 
 def parse_config():
-    config_file = pathlib.Path(os.environ['FF_CONFIG_FILE'])
-    logger.debug("Parsing config file. [%s]", config_file)
-
+    config_file = pathlib.Path(get_env_var('FF_CONFIG_FILE'))
     yaml = ruamel.yaml.YAML()
+    global global_config
     try:
-        config = yaml.load(config_file)
+        global_config = yaml.load(config_file)
     except ruamel.yaml.parser.ParserError as e1:
         logger.error("Cannot parse config file")
         exit_with_error(e1)
@@ -45,9 +44,6 @@ def parse_config():
             exit_with_error(e)
         else:
             raise
-
-    global global_config
-    global_config = config
 
 
 def setRecvSpeed(curl, speed):
@@ -176,6 +172,10 @@ def poll_queue(config):
         poll_loggers(dataloggers, day)
 
     logger.info("All done with queue %s.", config['name'])
+    for handler in logger.handlers:
+        handler.flush()
+
+
 
 
 def poll_queues():
