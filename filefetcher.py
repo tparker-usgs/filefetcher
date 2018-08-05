@@ -79,11 +79,11 @@ def backfill_finished(datalogger, day):
     backfill_date = datetime.strptime(datalogger['backfill'], '%m/%d/%Y')
     backfill_date = backfill_date.date()
     if day > backfill_date:
-        logger.info("Continuing to backfill from %s to %s", day,
+        logger.debug("Continuing to backfill from %s to %s", day,
                     backfill_date)
         return False
     else:
-        logger.debug("Continuing to backfill from %s to %s", day,
+        logger.info("Completed backfill from %s to %s", day,
                      backfill_date)
         return True
 
@@ -129,7 +129,7 @@ def fetch_file(c, out_file):
             c.perform()
             os.rename(tmp_file, out_file)
     except pycurl.error as e:
-        logger.info("Error retrieving %s: %s", out_file, e)
+        logger.error("Error retrieving %s: %s", out_file, e)
         remove_file(tmp_file)
         return True
 
@@ -209,8 +209,6 @@ def main():
 
     logger.debug("That's all for now, bye.")
     logging.shutdown()
-    logger.debug("Logging shutdown")
-
 
 if __name__ == '__main__':
     main()
