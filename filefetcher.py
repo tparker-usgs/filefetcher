@@ -209,6 +209,7 @@ def main():
 
     logger.debug("That's all for now, bye.")
     logging.shutdown()
+    logger.debug("Logging shutdown")
 
 
 if __name__ == '__main__':
