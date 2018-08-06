@@ -21,8 +21,7 @@ import ruamel.yaml
 from urllib.parse import urlparse
 import errno
 from multiprocessing import Process
-from tomputils.util import *
-
+import tomputils.util as tutil
 
 WINDOW_SIZE_FACTOR = 2
 
@@ -30,18 +29,18 @@ env = None
 
 
 def parse_config():
-    config_file = pathlib.Path(get_env_var('FF_CONFIG_FILE'))
+    config_file = pathlib.Path(tutil.get_env_var('FF_CONFIG_FILE'))
     yaml = ruamel.yaml.YAML()
     global global_config
     try:
         global_config = yaml.load(config_file)
     except ruamel.yaml.parser.ParserError as e1:
         logger.error("Cannot parse config file")
-        exit_with_error(e1)
+        tutil.exit_with_error(e1)
     except OSError as e:
         if e.errno == errno.EEXIST:
             logger.error("Cannot read config file %s", config_file)
-            exit_with_error(e)
+            tutil.exit_with_error(e)
         else:
             raise
 
@@ -76,11 +75,10 @@ def backfill_finished(datalogger, day):
     backfill_date = backfill_date.date()
     if day > backfill_date:
         logger.debug("Continuing to backfill from %s to %s", day,
-                    backfill_date)
+                     backfill_date)
         return False
     else:
-        logger.info("Completed backfill from %s to %s", day,
-                     backfill_date)
+        logger.info("Completed backfill from %s to %s", day, backfill_date)
         return True
 
 
@@ -116,7 +114,7 @@ def remove_file(file):
 
 
 def fetch_file(c, out_file):
-    tmp_dir = get_env_var("FF_TMP_DIR", default=".")
+    tmp_dir = tutil.get_env_var("FF_TMP_DIR", default=".")
     tmp_file = pathlib.Path(tmp_dir) / (str(out_file) + ".tmp")
 
     try:
@@ -194,13 +192,13 @@ def main():
     """Where it all begins."""
 
     global logger
-    logger = setup_logging("filefetcher errors")
+    logger = tutil.setup_logging("filefetcher errors")
 
     try:
         parse_config()
     except KeyError:
         msg = "Environment variable FF_CONFIG_FILE not set, exiting."
-        exit_with_error(msg)
+        tutil.exit_with_error(msg)
 
     procs = poll_queues()
     for proc in procs:
@@ -208,6 +206,7 @@ def main():
 
     logger.debug("That's all for now, bye.")
     logging.shutdown()
+
 
 if __name__ == '__main__':
     main()
