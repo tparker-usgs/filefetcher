@@ -165,15 +165,16 @@ def poll_loggers(dataloggers, day):
 
 
 def poll_queue(config):
-    day = datetime.utcnow().date()
-    dataloggers = config['dataloggers']
-    while dataloggers:
-        day -= timedelta(1)
-        poll_loggers(dataloggers, day)
-
-    logger.info("All done with queue %s.", config['name'])
-    for handler in logger.handlers:
-        handler.flush()
+    try:
+        day = datetime.utcnow().date()
+        dataloggers = config['dataloggers']
+        while dataloggers:
+            day -= timedelta(1)
+            poll_loggers(dataloggers, day)
+    finally:
+        logger.info("All done with queue %s.", config['name'])
+        for handler in logger.handlers:
+            handler.flush()
 
 
 
