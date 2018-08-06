@@ -177,8 +177,6 @@ def poll_queue(config):
             handler.flush()
 
 
-
-
 def poll_queues():
     procs = []
     for queue in global_config['queues']:
