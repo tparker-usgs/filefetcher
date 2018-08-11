@@ -123,6 +123,7 @@ def fetch_file(c, out_file):
         with open(tmp_file, 'wb') as f:
             c.setopt(c.WRITEDATA, f)
             c.perform()
+            make_out_dir(os.path.dirname(out_file))
             os.rename(tmp_file, out_file)
     except pycurl.error as e:
         logger.error("Error retrieving %s: %s", out_file, e)
@@ -140,8 +141,6 @@ def poll_logger(datalogger, day):
     url = day.strftime(datalogger['url']) % datalogger
     url_parts = urlparse(url)
     out_base = pathlib.Path(datalogger['out_dir']) / datalogger['name']
-    make_out_dir(out_base / os.path.dirname(url_parts.path)[1:])
-
     out_file = out_base / url_parts.path[1:]
     if os.path.exists(out_file):
         logger.info("I already have %s", out_file)
