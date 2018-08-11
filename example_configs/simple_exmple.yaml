@@ -13,6 +13,7 @@
 # recvSpeed: Maximum bandwidth in bytes per second. Will also attempt to set TCP receive window to double this value.
 # backfill: if provided a date in mm/dd/yyyy format, an attempt will be made to retrieve all missing files through that
 #           date.
+# userpw: Points to an environment variable which holds login credentials in user:pass form.
 
 queues:
   - name:spurr
@@ -22,6 +23,7 @@ queues:
         recvSpeed: 640
         url: ftp://%%(address)s/DSK1/SSN/LOG1_A/%y%j/SPBG%j0.%y_
         address: 10.0.0.1
+        userpw: EXAMPLE_USERPW
     
       - name: SPCR
         out_dir: /GPS/filefetcher
