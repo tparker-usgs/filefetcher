@@ -136,8 +136,6 @@ def poll_logger(datalogger, day):
         return True
 
     url = day.strftime(datalogger['url']) % datalogger
-    c = create_curl(datalogger, url)
-
     url_parts = urlparse(url)
     out_base = pathlib.Path(datalogger['out_dir']) / datalogger['name']
     make_out_dir(out_base / os.path.dirname(url_parts.path)[1:])
@@ -148,6 +146,9 @@ def poll_logger(datalogger, day):
         finished = True
     else:
         logger.info("Fetching %s from %s", out_file, url)
+        c = create_curl(datalogger, url)
+        if 'userpwd' in datalogger:
+            c.setopt(c.USERPWD, tutil.get_env_var(datalogger['userpwd']))
         finished = fetch_file(c, out_file)
 
     return finished and backfill_finished(datalogger, day)
