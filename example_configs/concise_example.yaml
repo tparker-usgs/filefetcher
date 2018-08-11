@@ -32,7 +32,8 @@ queues:
          - name: SPBG
            <<: *SEPTENTRIO
            address: 10.0.0.1
-       
+           userpwd: EXAMPLE_USERPWD
+
          - name: SPCR
            <<: *SEPTENTRIO
            address: 10.0.0.2

@@ -85,8 +85,10 @@ def backfill_finished(datalogger, day):
 def create_curl(datalogger, url):
     c = pycurl.Curl()
     c.setopt(c.VERBOSE, True)
-    if 'userpw' in datalogger:
-        c.setopt(pycurl.USERPWD, tutil.get_env_var(datalogger['userpw']))
+    if 'userpwd' in datalogger:
+        userpwd = tutil.get_env_var(datalogger['userpwd'])
+        logger.debug("Setting userpw to whatever is in $%s", userpwd)
+        c.setopt(pycurl.USERPWD, userpwd)
 
     if 'recvSpeed' in datalogger:
         setRecvSpeed(c, datalogger['recvSpeed'])
