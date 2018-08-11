@@ -86,7 +86,7 @@ def create_curl(datalogger, url):
     c = pycurl.Curl()
     c.setopt(c.VERBOSE, True)
     if 'userpw' in datalogger:
-        c.setopt(pycurl.USERPWD, datalogger['userpw'])
+        c.setopt(pycurl.USERPWD, tutil.get_env_var(datalogger['userpw']))
 
     if 'recvSpeed' in datalogger:
         setRecvSpeed(c, datalogger['recvSpeed'])
