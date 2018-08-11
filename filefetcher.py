@@ -25,8 +25,6 @@ import tomputils.util as tutil
 
 WINDOW_SIZE_FACTOR = 2
 
-env = None
-
 
 def parse_config():
     config_file = pathlib.Path(tutil.get_env_var('FF_CONFIG_FILE'))
@@ -191,8 +189,6 @@ def poll_queues():
 
 
 def main():
-    """Where it all begins."""
-
     global logger
     logger = tutil.setup_logging("filefetcher errors")
 
