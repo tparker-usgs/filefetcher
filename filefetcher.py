@@ -115,17 +115,18 @@ def remove_file(file):
 
 def fetch_file(c, out_file):
     tmp_dir = tutil.get_env_var("FF_TMP_DIR", default=".")
-    tmp_file = pathlib.Path(tmp_dir) / (str(out_file) + ".tmp")
+    tmp_file = "%s.tmp".format(os.path.basename(out_file))
+    tmp_path = pathlib.Path(tmp_dir) / tmp_file
 
     try:
-        with open(tmp_file, 'wb') as f:
+        with open(tmp_path, 'wb') as f:
             c.setopt(c.WRITEDATA, f)
             c.perform()
             make_out_dir(os.path.dirname(out_file))
-            os.rename(tmp_file, out_file)
+            os.rename(tmp_path, out_file)
     except pycurl.error as e:
         logger.error("Error retrieving %s: %s", out_file, e)
-        remove_file(tmp_file)
+        remove_file(tmp_path)
         return True
 
     return False
