@@ -25,8 +25,6 @@ import tomputils.util as tutil
 
 WINDOW_SIZE_FACTOR = 2
 
-env = None
-
 
 def parse_config():
     config_file = pathlib.Path(tutil.get_env_var('FF_CONFIG_FILE'))
@@ -85,8 +83,11 @@ def backfill_finished(datalogger, day):
 def create_curl(datalogger, url):
     c = pycurl.Curl()
     c.setopt(c.VERBOSE, True)
-    if 'userpw' in datalogger:
-        c.setopt(pycurl.USERPWD, tutil.get_env_var(datalogger['userpw']))
+    c.setopt(c.SSH_COMPRESSION, True)
+    if 'userpwd' in datalogger:
+        userpwd = tutil.get_env_var(datalogger['userpwd'])
+        logger.debug("Setting userpw to whatever is in $%s", userpwd)
+        c.setopt(pycurl.USERPWD, userpwd)
 
     if 'recvSpeed' in datalogger:
         setRecvSpeed(c, datalogger['recvSpeed'])
@@ -121,6 +122,7 @@ def fetch_file(c, out_file):
         with open(tmp_file, 'wb') as f:
             c.setopt(c.WRITEDATA, f)
             c.perform()
+            make_out_dir(os.path.dirname(out_file))
             os.rename(tmp_file, out_file)
     except pycurl.error as e:
         logger.error("Error retrieving %s: %s", out_file, e)
@@ -138,8 +140,6 @@ def poll_logger(datalogger, day):
     url = day.strftime(datalogger['url']) % datalogger
     url_parts = urlparse(url)
     out_base = pathlib.Path(datalogger['out_dir']) / datalogger['name']
-    make_out_dir(out_base / os.path.dirname(url_parts.path)[1:])
-
     out_file = out_base / url_parts.path[1:]
     if os.path.exists(out_file):
         logger.info("I already have %s", out_file)
@@ -190,8 +190,6 @@ def poll_queues():
 
 
 def main():
-    """Where it all begins."""
-
     global logger
     logger = tutil.setup_logging("filefetcher errors")
 

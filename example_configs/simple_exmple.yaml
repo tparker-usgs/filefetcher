@@ -23,7 +23,7 @@ queues:
         recvSpeed: 640
         url: ftp://%%(address)s/DSK1/SSN/LOG1_A/%y%j/SPBG%j0.%y_
         address: 10.0.0.1
-        userpw: EXAMPLE_USERPW
+        userpwd: EXAMPLE_USERPWD
     
       - name: SPCR
         out_dir: /GPS/filefetcher

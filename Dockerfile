@@ -28,6 +28,7 @@ ADD filefetcher.py .
 RUN chmod 755 filefetcher.py
 ADD support/cron-filefetcher .
 ADD support/run_crond.sh  .
+ADD support/single.py  .
 RUN chmod 755 run_crond.sh
 
 CMD ["/app/filefetcher/run_crond.sh"]
