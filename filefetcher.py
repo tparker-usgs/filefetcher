@@ -116,7 +116,7 @@ def remove_file(file):
 
 def fetch_file(c, out_file):
     tmp_dir = tutil.get_env_var("FF_TMP_DIR", default=".")
-    tmp_file = "%s.tmp".format(os.path.basename(out_file))
+    tmp_file = "{}.tmp".format(os.path.basename(out_file))
     tmp_path = pathlib.Path(tmp_dir) / tmp_file
 
     try:
