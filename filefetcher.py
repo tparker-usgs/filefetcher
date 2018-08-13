@@ -24,6 +24,7 @@ from multiprocessing import Process
 import tomputils.util as tutil
 
 WINDOW_SIZE_FACTOR = 2
+PYCURL_MINOR_ERRORS = [pycurl.E_COULDNT_CONNECT, pycurl.E_OPERATION_TIMEDOUT]
 
 
 def parse_config():
@@ -126,7 +127,10 @@ def fetch_file(c, out_file):
             make_out_dir(os.path.dirname(out_file))
             os.rename(tmp_path, out_file)
     except pycurl.error as e:
-        logger.error("Error retrieving %s: %s", out_file, e)
+        if e.args[0] in PYCURL_MINOR_ERRORS:
+            logger.info("Error retrieving %s: %s", out_file, e)
+        else:
+            logger.error("Error retrieving %s: %s", out_file, e)
         remove_file(tmp_path)
         return True
 
