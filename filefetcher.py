@@ -24,7 +24,8 @@ from multiprocessing import Process
 import tomputils.util as tutil
 
 WINDOW_SIZE_FACTOR = 2
-PYCURL_MINOR_ERRORS = [pycurl.E_COULDNT_CONNECT, pycurl.E_OPERATION_TIMEDOUT]
+PYCURL_MINOR_ERRORS = [pycurl.E_COULDNT_CONNECT, pycurl.E_OPERATION_TIMEDOUT,
+                       pycurl.E_FAILED_INIT]
 
 
 def parse_config():
