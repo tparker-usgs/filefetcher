@@ -10,9 +10,13 @@
 #
 # Optional parameters
 #
-# recvSpeed: Maximum bandwidth in bytes per second. Will also attempt to set TCP receive window to double this value. Use 0 for unlimited.
-# backfill: if provided a date in mm/dd/yyyy format, an attempt will be made to retrieve all missing files through that
+# recvSpeed: Maximum bandwidth in bytes per second. Will also attempt to set TCP receive window to double this value.
+#            Use 0 for unlimited.
+# backfill: If provided a date in mm/dd/yyyy format, an attempt will be made to retrieve all missing files through that
 #           date.
+# out_path: The pattern used for formatting filename relative to out_base. The pattern may contain both date format
+#           strings and config substitution strings. Use a double percent for substitution strings.
+# userpwd: Points to an environment variable which holds login credentials in user:pass form.
 
 defaults: &DEFAULTS
   out_dir: /GPS/filefetcher
@@ -20,7 +24,9 @@ defaults: &DEFAULTS
 
 septentrio: &SEPTENTRIO
   <<: *DEFAULTS
-  url: ftp://%%(address)s/DSK1/SSN/LOG1_A/%y%j/%%(station)s%j0.%y_
+  url: sftp://%%(address)s/ftp/DSK1/SSN/LOG1_A/%y%j/%%(station)s%j0.%y_
+  userpwd: TEST_PWD
+  out_path: %%(station)s/LOG1_A/%y%j/%%(station)s%j0.%y_
 
 trimble: &TRIMBLE
   <<: *DEFAULTS

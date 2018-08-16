@@ -138,24 +138,32 @@ def fetch_file(c, out_file):
     return False
 
 
+def find_out_file(datalogger, day, url):
+    if 'out_path' in datalogger:
+        out_path = day.strftime(datalogger['out_path']) % datalogger
+    else:
+        url_parts = urlparse(url)
+        out_path = pathlib.Path(datalogger['name']) / url_parts.path[1:]
+
+    return pathlib.Path(datalogger['out_dir']) / out_path
+
+
 def poll_logger(datalogger, day):
     if 'disabled' in datalogger and datalogger['disabled']:
         logger.debug("Skipping %s (disabled)", datalogger['name'])
         return True
 
     url = day.strftime(datalogger['url']) % datalogger
-    url_parts = urlparse(url)
-    out_base = pathlib.Path(datalogger['out_dir']) / datalogger['name']
-    out_file = out_base / url_parts.path[1:]
-    if os.path.exists(out_file):
-        logger.info("I already have %s", out_file)
+    out_path = find_out_file(datalogger, day, url)
+    if os.path.exists(out_path):
+        logger.info("I already have %s", out_path)
         finished = True
     else:
-        logger.info("Fetching %s from %s", out_file, url)
+        logger.info("Fetching %s from %s", out_path, url)
         c = create_curl(datalogger, url)
         if 'userpwd' in datalogger:
             c.setopt(c.USERPWD, tutil.get_env_var(datalogger['userpwd']))
-        finished = fetch_file(c, out_file)
+        finished = fetch_file(c, out_path)
 
     return finished and backfill_finished(datalogger, day)
 
