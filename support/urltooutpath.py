@@ -23,8 +23,11 @@ from urllib.parse import urlparse
 import errno
 from multiprocessing import Process
 import tomputils.util as tutil
+from string import Template
+import shutil
 
 global global_config
+
 
 def parse_config():
     config_file = pathlib.Path(tutil.get_env_var('FF_CONFIG_FILE'))
@@ -44,16 +47,34 @@ def parse_config():
 
 
 def process_logger(datalogger):
+    if 'out_path' not in datalogger:
+        logging.info("Skipping %s, no out_path", datalogger['name'])
+        return
+
     os.chdir(datalogger['out_dir'])
-    src_path = pathlib.Path(datalogger['name'])
-    old_format = os.path.join(datalogger['name'],
-                              datalogger['url'].split('/', 3)[3])
+    src_path = datalogger['name']
+    old_format = datalogger['url'].split('/', 3)[3]
+    old_file_format = datalogger['url'].split('/')[-1]
     logger.debug("Processing logger %s with format %s", datalogger['name'],
                  old_format)
     for root, dirs, files in os.walk(src_path):
         for file in files:
-            date = datetime.strptime(file, old_format)
+            logger.debug("TOMP SAYS %s date %s", file, root)
+
+            out_str = Template(str(old_file_format)).substitute(datalogger)
+            date = datetime.strptime(file, out_str)
             logger.debug("Found %s date %s", file, date)
+
+            old_path = os.path.join(root, file)
+            new_fmt = Template(datalogger['out_path']).substitute(datalogger)
+            new_path = date.strftime(new_fmt)
+
+            logger.info("Moving %s to %s", old_path , new_path)
+            try:
+                os.makedirs(os.path.dirname(new_path))
+            except FileExistsError:
+                pass
+            shutil.move(old_path, new_path)
 
 def main():
     global logger
