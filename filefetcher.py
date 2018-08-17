@@ -23,6 +23,7 @@ import errno
 from multiprocessing import Process
 import tomputils.util as tutil
 from string import Template
+import signal
 
 WINDOW_SIZE_FACTOR = 2
 PYCURL_MINOR_ERRORS = [pycurl.E_COULDNT_CONNECT, pycurl.E_OPERATION_TIMEDOUT,
@@ -207,6 +208,8 @@ def poll_queues():
 
 
 def main():
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+
     global logger
     logger = tutil.setup_logging("filefetcher errors")
 
