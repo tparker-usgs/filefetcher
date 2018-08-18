@@ -52,7 +52,10 @@ def process_logger(datalogger):
                  old_format)
     for root, dirs, files in os.walk(src_path):
         for file in files:
-            date = datetime.strptime(file, old_format)
+            try:
+                date = datetime.strptime(file, old_format)
+            except ValueError:
+                continue
             logger.debug("Found %s date %s", file, date)
 
 def main():
