@@ -2,21 +2,25 @@
 
 # Required parameters
 #
-# out_dir: Where the files will be placed. Files will be placed inside of a directory inside of a directory named for
-#          the reciever, in a structure mirroring the remote device.
-# url: The pattern used for formatting file URLs. The pattern may contain both date format strings and config
-#      substitution strings. Use a double percent for substitution strings.
+# out_dir: Where the files will be placed. Files will be placed inside of a
+#          directory inside of a directory named for the reciever, in a
+#          structure mirroring the remote device.
+# url: The pattern used for formatting file URLs. The pattern may contain both
+#      date format strings and PEP 292-style substitution strings using values
+#      from the datalogger map.
 #
 #
 # Optional parameters
 #
-# recvSpeed: Maximum bandwidth in bytes per second. Will also attempt to set TCP receive window to double this value.
-#            Use 0 for unlimited.
-# backfill: If provided a date in mm/dd/yyyy format, an attempt will be made to retrieve all missing files through that
-#           date.
-# out_path: The pattern used for formatting filename relative to out_base. The pattern may contain both date format
-#           strings and config substitution strings. Use a double percent for substitution strings.
-# userpw: Points to an environment variable which holds login credentials in user:pass form.
+# recvSpeed: Maximum bandwidth in bytes per second. Will also attempt to set
+#            TCP receive window to double this value. Use 0 for unlimited.
+# backfill: If provided a date in mm/dd/yyyy format, an attempt will be made to
+#           retrieve all missing files through that date.
+# out_path: The pattern used for formatting filename relative to out_dir. The
+#           pattern may contain both date format strings and PEP 292-style
+#           substitution strings using values from the datalogger map.
+# userpwd: Points to an environment variable which holds login credentials in
+#          user:pass form.
 
 queues:
   - name:spurr
@@ -24,30 +28,30 @@ queues:
       - name: SPBG
         out_dir: /GPS/filefetcher
         recvSpeed: 640
-        url: ftp://%%(address)s/DSK1/SSN/LOG1_A/%y%j/SPBG%j0.%y_
+        url: sftp://${address}/ftp/DSK1/SSN/LOG1_A/%y%j/${name}%j0.%y_
         address: 10.0.0.1
         userpwd: EXAMPLE_USERPWD
         userpwd: TEST_PWD
-        out_path: %%(station)s/LOG1_A/%y%j/%%(station)s%j0.%y_
+        out_path: ${name}/LOG1_A/%y%j/${name}%j0.%y_
 
       - name: SPCR
         out_dir: /GPS/filefetcher
         recvSpeed: 640
-        url: ftp://%%(address)s/DSK1/SSN/LOG1_A/%y%j/SPCR%j0.%y_
+        url: sftp://${address}/ftp/DSK1/SSN/LOG1_A/%y%j/${name}%j0.%y_
         address: 10.0.0.2
         userpwd: TEST_PWD
-        out_path: %%(station)s/LOG1_A/%y%j/%%(station)s%j0.%y_
+        out_path: ${name}/LOG1_A/%y%j/${name}%j0.%y_
 
       - name: SPCG
         out_dir: /GPS/filefetcher
         recvSpeed: 640
-        url: ftp://%%(address)s/%Y%m/a/SPCG%Y%m%d0000a.T00
+        url: ftp://${address}/%Y%m/a/${name}%Y%m%d0000a.T00
         address: 10.0.0.3
     
       - name: SPCP
         out_dir: /GPS/filefetcher
         recvSpeed: 640
-        url: ftp://%%(address)s/%Y%m/a/SPCP%Y%m%d0000a.T00
+        url: ftp://${address}/%Y%m/a/${name}%Y%m%d0000a.T00
         address: 10.0.0.4
 
   - name:okmok
@@ -55,27 +59,27 @@ queues:
       - name: OKCE
         out_dir: /GPS/filefetcher
         recvSpeed: 640
-        url: ftp://%%(address)s/DSK1/SSN/LOG1_A/%y%j/SPBG%j0.%y_
+        url: sftp://${address}/ftp/DSK1/SSN/LOG1_A/%y%j/${name}%j0.%y_
         address: 10.0.0.5
         userpwd: TEST_PWD
-        out_path: %%(station)s/LOG1_A/%y%j/%%(station)s%j0.%y_
+        out_path: ${name}/LOG1_A/%y%j/${name}%j0.%y_
 
       - name: OKNC
         out_dir: /GPS/filefetcher
         recvSpeed: 640
-        url: ftp://%%(address)s/DSK1/SSN/LOG1_A/%y%j/SPCR%j0.%y_
+        url: sftp://${address}/ftp/DSK1/SSN/LOG1_A/%y%j/${name}%j0.%y_
         address: 10.0.0.6
         userpwd: TEST_PWD
-        out_path: %%(station)s/LOG1_A/%y%j/%%(station)s%j0.%y_
+        out_path: ${name}/LOG1_A/%y%j/${name}%j0.%y_
 
       - name: OKFG
         out_dir: /GPS/filefetcher
         recvSpeed: 640
-        url: ftp://%%(address)s/%Y%m/a/SPCG%Y%m%d0000a.T00
+        url: ftp://${address}/%Y%m/a/${name}%Y%m%d0000a.T00
         address: 10.0.0.7
     
       - name: OKSO
         out_dir: /GPS/filefetcher
         recvSpeed: 640
-        url: ftp://%%(address)s/%Y%m/a/SPCP%Y%m%d0000a.T00
+        url: ftp://${address}/%Y%m/a/${name}%Y%m%d0000a.T00
         address: 10.0.0.8

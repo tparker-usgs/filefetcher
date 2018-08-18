@@ -22,6 +22,8 @@ from urllib.parse import urlparse
 import errno
 from multiprocessing import Process
 import tomputils.util as tutil
+from string import Template
+import signal
 
 WINDOW_SIZE_FACTOR = 2
 PYCURL_MINOR_ERRORS = [pycurl.E_COULDNT_CONNECT, pycurl.E_OPERATION_TIMEDOUT,
@@ -140,7 +142,8 @@ def fetch_file(c, out_file):
 
 def find_out_file(datalogger, day, url):
     if 'out_path' in datalogger:
-        out_path = day.strftime(datalogger['out_path']) % datalogger
+        out_str = Template(datalogger['out_path']).substitute(datalogger)
+        out_path = day.strftime(out_str)
     else:
         url_parts = urlparse(url)
         out_path = pathlib.Path(datalogger['name']) / url_parts.path[1:]
@@ -153,7 +156,8 @@ def poll_logger(datalogger, day):
         logger.debug("Skipping %s (disabled)", datalogger['name'])
         return True
 
-    url = day.strftime(datalogger['url']) % datalogger
+    url_str = Template(datalogger['url']).substitute(datalogger)
+    url = day.strftime(url_str)
     out_path = find_out_file(datalogger, day, url)
     if os.path.exists(out_path):
         logger.info("I already have %s", out_path)
@@ -204,6 +208,8 @@ def poll_queues():
 
 
 def main():
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+
     global logger
     logger = tutil.setup_logging("filefetcher errors")
 
