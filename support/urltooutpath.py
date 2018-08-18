@@ -60,7 +60,7 @@ def process_logger(datalogger):
     for root, dirs, files in os.walk(src_path):
         for file in files:
             try:
-                date = datetime.strptime(file, old_format)
+                date = datetime.strptime(file, old_file_format)
             except ValueError:
                 continue
             out_str = Template(str(old_file_format)).substitute(datalogger)
