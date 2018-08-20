@@ -27,7 +27,7 @@ import signal
 
 WINDOW_SIZE_FACTOR = 2
 PYCURL_MINOR_ERRORS = [pycurl.E_COULDNT_CONNECT, pycurl.E_OPERATION_TIMEDOUT,
-                       pycurl.E_FAILED_INIT]
+                       pycurl.E_FAILED_INIT, pycurl.E_REMOTE_FILE_NOT_FOUND]
 
 
 def parse_config():
