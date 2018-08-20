@@ -59,8 +59,10 @@ def process_logger(datalogger):
                  old_format)
     for root, dirs, files in os.walk(src_path):
         for file in files:
-            logger.debug("TOMP SAYS %s date %s", file, root)
-
+            try:
+                date = datetime.strptime(file, old_file_format)
+            except ValueError:
+                continue
             out_str = Template(str(old_file_format)).substitute(datalogger)
             date = datetime.strptime(file, out_str)
             logger.debug("Found %s date %s", file, date)

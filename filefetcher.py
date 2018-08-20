@@ -88,7 +88,7 @@ def create_curl(datalogger, url):
     c = pycurl.Curl()
     c.setopt(c.VERBOSE, True)
     if 'userpwd' in datalogger:
-        userpwd = tutil.get_env_var(datalogger['userpwd'])
+        userpwd = tutil.get_env_var(datalogger['userpwd'], secret=True)
         logger.debug("Setting userpw to whatever is in $%s",
                      datalogger['userpwd'])
         c.setopt(pycurl.USERPWD, userpwd)
@@ -165,8 +165,6 @@ def poll_logger(datalogger, day):
     else:
         logger.info("Fetching %s from %s", out_path, url)
         c = create_curl(datalogger, url)
-        if 'userpwd' in datalogger:
-            c.setopt(c.USERPWD, tutil.get_env_var(datalogger['userpwd']))
         finished = fetch_file(c, out_path)
 
     return finished and backfill_finished(datalogger, day)
