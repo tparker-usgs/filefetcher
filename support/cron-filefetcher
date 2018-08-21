@@ -1,4 +1,5 @@
 PATH=/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/app/filefetcher
 
 10 */3 * * * root single.py -c filefetcher.py > $FF_LOG_DIR/filefetcher_`date -u "+\%Y\%m\%d:\%H"` 2>&1
+0 0 * * * singleTimeout.sh -t 10800 -c filefetcher.py
 0 0 * * * root find $FF_LOG_DIR -name 'filefetcher_*' -mtime +14 -exec rm {} \;
