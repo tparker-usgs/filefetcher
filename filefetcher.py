@@ -96,6 +96,12 @@ def create_curl(datalogger, url):
     if 'recvSpeed' in datalogger:
         setRecvSpeed(c, datalogger['recvSpeed'])
 
+    def progress(download_t, download_d, upload_t, upload_d):
+        logger.debug("Downloaded %s/%s", download_d, download_t)
+        return 0
+
+    c.setopt(c.NOPROGRESS, False)
+    c.setopt(c.XFERINFOFUNCTION, progress)
     c.setopt(c.URL, url)
 
     return c
