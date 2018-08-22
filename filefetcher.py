@@ -24,7 +24,6 @@ from multiprocessing import Process
 import tomputils.util as tutil
 from string import Template
 import signal
-import random
 
 WINDOW_SIZE_FACTOR = 2
 MAX_UPDATE_FREQ = timedelta(seconds=5)
@@ -99,6 +98,7 @@ def create_curl(datalogger, url):
         setRecvSpeed(c, datalogger['recvSpeed'])
 
     last_update = datetime.now()
+
     def progress(download_t, download_d, upload_t, upload_d):
         nonlocal last_update
         now = datetime.now()
