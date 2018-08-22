@@ -25,6 +25,7 @@ import tomputils.util as tutil
 from string import Template
 import signal
 
+REQ_VERSION = (3, 0)
 WINDOW_SIZE_FACTOR = 2
 MAX_UPDATE_FREQ = timedelta(seconds=5)
 PYCURL_MINOR_ERRORS = [pycurl.E_COULDNT_CONNECT, pycurl.E_OPERATION_TIMEDOUT,
@@ -218,11 +219,19 @@ def poll_queues():
     return procs
 
 
+def check_version():
+    if sys.version_info < REQ_VERSION:
+        msg = "Python interpreter is too old. I need at least 3.5 " \
+              + "for EmailMessage.iter_attachments() support."
+        tutil.exit_with_error(msg)
+
+
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     global logger
     logger = tutil.setup_logging("filefetcher errors")
+    check_version()
 
     try:
         parse_config()
