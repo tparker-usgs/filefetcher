@@ -29,7 +29,7 @@ import humanize
 
 REQ_VERSION = (3, 0)
 WINDOW_SIZE_FACTOR = 2
-MAX_UPDATE_FREQ = timedelta(seconds=5)
+MAX_UPDATE_FREQ = timedelta(seconds=10)
 PYCURL_MINOR_ERRORS = [pycurl.E_COULDNT_CONNECT, pycurl.E_OPERATION_TIMEDOUT,
                        pycurl.E_FAILED_INIT, pycurl.E_REMOTE_FILE_NOT_FOUND]
 
