@@ -26,6 +26,7 @@ from string import Template
 import signal
 
 WINDOW_SIZE_FACTOR = 2
+MAX_UPDATE_FREQ = timedelta(seconds=5)
 PYCURL_MINOR_ERRORS = [pycurl.E_COULDNT_CONNECT, pycurl.E_OPERATION_TIMEDOUT,
                        pycurl.E_FAILED_INIT, pycurl.E_REMOTE_FILE_NOT_FOUND]
 
@@ -96,8 +97,14 @@ def create_curl(datalogger, url):
     if 'recvSpeed' in datalogger:
         setRecvSpeed(c, datalogger['recvSpeed'])
 
+    last_update = datetime.now()
+
     def progress(download_t, download_d, upload_t, upload_d):
-        logger.debug("Downloaded %s/%s", download_d, download_t)
+        nonlocal last_update
+        now = datetime.now()
+        if now > last_update + MAX_UPDATE_FREQ:
+            last_update = now
+            logger.debug("Downloaded %s/%s", download_d, download_t)
         return 0
 
     c.setopt(c.NOPROGRESS, False)
