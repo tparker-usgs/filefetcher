@@ -24,6 +24,7 @@ from multiprocessing import Process
 import tomputils.util as tutil
 from string import Template
 import signal
+import random
 
 WINDOW_SIZE_FACTOR = 2
 PYCURL_MINOR_ERRORS = [pycurl.E_COULDNT_CONNECT, pycurl.E_OPERATION_TIMEDOUT,
@@ -97,7 +98,8 @@ def create_curl(datalogger, url):
         setRecvSpeed(c, datalogger['recvSpeed'])
 
     def progress(download_t, download_d, upload_t, upload_d):
-        logger.debug("Downloaded %s/%s", download_d, download_t)
+        if random.randint(0,2) < 2:
+            logger.debug("Downloaded %s/%s", download_d, download_t)
         return 0
 
     c.setopt(c.NOPROGRESS, False)
