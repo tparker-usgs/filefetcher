@@ -24,6 +24,8 @@ from multiprocessing import Process
 import tomputils.util as tutil
 from string import Template
 import signal
+import humanize
+
 
 REQ_VERSION = (3, 0)
 WINDOW_SIZE_FACTOR = 2
@@ -104,7 +106,8 @@ def create_curl(datalogger, url):
         nonlocal last_update
         now = datetime.now()
         if now > last_update + MAX_UPDATE_FREQ:
-            logger.debug("Downloaded %s/%s", download_d, download_t)
+            logger.debug("Downloaded %s/%s", humanize.naturalsize(download_d),
+                         humanize.naturalsize(download_t))
             last_update = now
         return 0
 
