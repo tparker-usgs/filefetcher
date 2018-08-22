@@ -10,20 +10,21 @@
 """ Retrieve GPS files."""
 
 from datetime import timedelta, datetime
+from string import Template
+import signal
 import logging
 import os
 import sys
 import socket
 import struct
-import pycurl
 import pathlib
-import ruamel.yaml
 from urllib.parse import urlparse
 import errno
 from multiprocessing import Process
+
+import ruamel.yaml
 import tomputils.util as tutil
-from string import Template
-import signal
+import pycurl
 import humanize
 
 
