@@ -107,8 +107,9 @@ def create_curl(datalogger, url):
         nonlocal last_update
         now = datetime.now()
         if now > last_update + MAX_UPDATE_FREQ:
-            logger.debug("Downloaded %s/%s", humanize.naturalsize(download_d),
-                         humanize.naturalsize(download_t))
+            download_d_str = humanize.naturalsize(download_d, format='%.2f')
+            download_t_str = humanize.naturalsize(download_t, format='%.2f')
+            logger.debug("Downloaded %s of %s", download_d_str, download_t_str)
             last_update = now
         return 0
 
