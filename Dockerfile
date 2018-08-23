@@ -39,10 +39,10 @@ RUN pip install --no-cache-dir -r requirements.txt # 1
 
 ADD VERSION .
 ADD filefetcher.py .
-RUN chmod 755 filefetcher.py
+ADD configwatcher.py .
 ADD support/cron-filefetcher .
 ADD support/single.py  .
-RUN chmod 755 run_crond.sh
+RUN chmod 755 *.py
 
 CMD ["/usr/local/bin/supercronic","/app/filefetcher/cron-filefetcher"]
 
