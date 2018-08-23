@@ -9,13 +9,13 @@
 
 """ Watch config file for changes."""
 
-import pathlib
 import os
 import difflib
 import shutil
+import logging
 
 import tomputils.util as tutil
-import logging
+
 
 def main():
     global logger
