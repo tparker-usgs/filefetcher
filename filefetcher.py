@@ -51,6 +51,7 @@ def parse_config():
             raise
     return global_config
 
+
 def setRecvSpeed(curl, speed):
     if speed < 1:
         return
