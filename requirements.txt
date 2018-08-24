@@ -1,4 +1,4 @@
 pycurl
 ruamel_yaml
-tomputils >= 1.4.2
+tomputils >= 1.5.0
 humanize

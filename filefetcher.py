@@ -38,7 +38,6 @@ PYCURL_MINOR_ERRORS = [pycurl.E_COULDNT_CONNECT, pycurl.E_OPERATION_TIMEDOUT,
 def parse_config():
     config_file = pathlib.Path(tutil.get_env_var('FF_CONFIG_FILE'))
     yaml = ruamel.yaml.YAML()
-    global global_config
     try:
         global_config = yaml.load(config_file)
     except ruamel.yaml.parser.ParserError as e1:
@@ -50,7 +49,7 @@ def parse_config():
             tutil.exit_with_error(e)
         else:
             raise
-
+    return global_config
 
 def setRecvSpeed(curl, speed):
     if speed < 1:
@@ -224,22 +223,20 @@ def poll_queues():
     return procs
 
 
-def check_version():
-    if sys.version_info < REQ_VERSION:
-        msg = "Python interpreter is too old. I need at least 3.5 " \
-              + "for EmailMessage.iter_attachments() support."
-        tutil.exit_with_error(msg)
-
-
 def main():
+    # let ctrl-c work as it should.
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     global logger
     logger = tutil.setup_logging("filefetcher errors")
-    check_version()
+
+    msg = "Python interpreter is too old. I need at least {} " \
+          + "for EmailMessage.iter_attachments() support."
+    tutil.enforce_version(REQ_VERSION, msg.format(REQ_VERSION))
 
     try:
-        parse_config()
+        global global_config
+        global_config = parse_config()
     except KeyError:
         msg = "Environment variable FF_CONFIG_FILE not set, exiting."
         tutil.exit_with_error(msg)
