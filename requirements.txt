@@ -2,8 +2,5 @@ pycurl
 ruamel_yaml
 tomputils>=1.8.0
 humanize
-<<<<<<< HEAD
 multiprocessing-logging
-=======
 -e git+https://github.com/tparker-usgs/py-single.git@33a0e31e248c96967b067e1eaaebc282e3abead4#egg=single
->>>>>>> 6a433a43ca67bc888a657f412803e18d8b00aa8d
