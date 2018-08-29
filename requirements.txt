@@ -3,4 +3,4 @@ ruamel_yaml
 tomputils>=1.8.0
 humanize
 multiprocessing-logging
--e git+https://github.com/tparker-usgs/py-single.git@33a0e31e248c96967b067e1eaaebc282e3abead4#egg=single
+single
