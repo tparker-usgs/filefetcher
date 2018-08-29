@@ -26,6 +26,7 @@ import ruamel.yaml
 import tomputils.util as tutil
 import pycurl
 import humanize
+import multiprocessing_logging
 
 
 REQ_VERSION = (3, 0)
@@ -236,6 +237,8 @@ def main():
 
     global logger
     logger = tutil.setup_logging("filefetcher errors")
+    multiprocessing_logging.install_mp_handler()
+
     check_version()
 
     try:
