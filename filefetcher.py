@@ -31,13 +31,14 @@ import multiprocessing_logging
 
 REQ_VERSION = (3, 0)
 WINDOW_SIZE_FACTOR = 2
+CONFIG_FILE_ENV = 'FF_CONFIG_FILE'
 MAX_UPDATE_FREQ = timedelta(seconds=10)
 PYCURL_MINOR_ERRORS = [pycurl.E_COULDNT_CONNECT, pycurl.E_OPERATION_TIMEDOUT,
                        pycurl.E_FAILED_INIT, pycurl.E_REMOTE_FILE_NOT_FOUND]
 
 
 def parse_config():
-    config_file = pathlib.Path(tutil.get_env_var('FF_CONFIG_FILE'))
+    config_file = pathlib.Path(tutil.get_env_var(CONFIG_FILE_ENV))
     yaml = ruamel.yaml.YAML()
     try:
         global_config = yaml.load(config_file)
@@ -241,7 +242,7 @@ def main():
         global global_config
         global_config = parse_config()
     except KeyError:
-        msg = "Environment variable FF_CONFIG_FILE not set, exiting."
+        msg = "Environment variable %s unset, exiting.".format(CONFIG_FILE_ENV)
         tutil.exit_with_error(msg)
 
     procs = poll_queues()
