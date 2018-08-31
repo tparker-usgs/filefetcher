@@ -9,8 +9,8 @@ FROM python:3.7
 
 RUN apt-get update && apt-get -y install cron
 
-WORKDIR /root/.pip
-ADD support/pip.conf .
+#WORKDIR /root/.pip
+#ADD support/pip.conf .
 
 WORKDIR /root/certs
 add support/DOIRootCA2.cer .

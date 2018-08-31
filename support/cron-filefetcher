@@ -1,4 +1,4 @@
-10 */3 * * * single.py -c filefetcher.py > $FF_LOG_DIR/filefetcher_`date -u "+%Y%m%d:%H"` 2>&1
-0/5 * * * * configwatcher.py
+10 */3 * * * python2 /usr/local/bin/single.py -c filefetcher.py > $FF_LOG_DIR/filefetcher_`date -u "+%Y%m%d:%H"` 2>&1
+*/5 * * * * configwatcher.py
 0 0 * * * singleTimeout.sh -t 10800 -c filefetcher.py
 0 0 * * * find $FF_LOG_DIR -name 'filefetcher_*' -mtime +14 -exec rm {} \;
