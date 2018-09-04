@@ -154,7 +154,7 @@ def fetch_file(c, out_file):
         if e.args[0] in PYCURL_MINOR_ERRORS:
             logger.info("Error retrieving %s: %s", out_file, e)
         else:
-            logger.error("Error retrieving %s: %s", out_file, e)
+            logger.exception("Error retrieving %s", out_file)
         remove_file(tmp_path)
         return True
 
