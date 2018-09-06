@@ -35,6 +35,7 @@ CONFIG_FILE_ENV = 'FF_CONFIG_FILE'
 MAX_UPDATE_FREQ = timedelta(seconds=10)
 PYCURL_MINOR_ERRORS = [pycurl.E_COULDNT_CONNECT, pycurl.E_OPERATION_TIMEDOUT,
                        pycurl.E_FAILED_INIT, pycurl.E_REMOTE_FILE_NOT_FOUND]
+START_TIME = datetime.now()
 
 
 def parse_config():
@@ -188,7 +189,8 @@ def poll_logger(datalogger, day):
         c = create_curl(datalogger, url)
         finished = fetch_file(c, out_path)
 
-    return finished and backfill_finished(datalogger, day)
+    time_exceeded = datetime.now() - START_TIME > global_config['maxRunTime']
+    return time_exceeded or (finished and backfill_finished(datalogger, day))
 
 
 def poll_loggers(dataloggers, day):
