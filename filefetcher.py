@@ -190,6 +190,8 @@ def poll_logger(datalogger, day):
         finished = fetch_file(c, out_path)
 
     time_exceeded = datetime.now() - START_TIME > global_config['maxRunTime']
+    if time_exceeded:
+        logger.info("maxRunTime exceeded, lets cleanup and exit.")
     return time_exceeded or (finished and backfill_finished(datalogger, day))
 
 
