@@ -19,7 +19,7 @@ import tomputils.util as tutil
 
 def main():
     global logger
-    logger = tutil.setup_logging("filefetcher configwatcher errors")
+    logger = tutil.setup_logging("FILEFETCHER CONFIGURATION CHANGED")
 
     config_path = tutil.get_env_var('FF_CONFIG_FILE')
     copy_path = os.path.join('/tmp', os.path.basename(config_path))
