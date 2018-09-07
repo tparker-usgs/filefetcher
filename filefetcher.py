@@ -104,6 +104,9 @@ def create_curl(datalogger, url):
     if 'recvSpeed' in datalogger:
         setRecvSpeed(c, datalogger['recvSpeed'])
 
+    if 'port' in datalogger:
+        c.setopt(pycurl.PORT, datalogger['port'])
+
     last_update = datetime.now()
 
     def progress(download_t, download_d, upload_t, upload_d):
