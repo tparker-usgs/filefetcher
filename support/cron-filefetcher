@@ -1,5 +1,5 @@
 # Keep config updated
-*/5 * * * * configwatcher.py
+*/5 * * * * single.py -c configupdater.py --url=$CONFIG_UPDATER_URL --user=$USER --passwd=$PASSWD $CONFIG_UPDATER_CONFIG
 
 # Run daily just after midnight. maxRunTime setting makes this is safe even if the previous run has not completed.
 10 0 * * * filefetcher.py > $FF_LOG_DIR/filefetcher_`date -u "+%Y%m%d:%H"` 2>&1
