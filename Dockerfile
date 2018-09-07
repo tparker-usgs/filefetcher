@@ -24,6 +24,7 @@ WORKDIR /app/filefetcher
 ADD requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt # 1
 
+ENV CONFIG_UPDATER_CONFIG=/tmp/configupdater.yaml
 ADD VERSION .
 ADD support/cron-filefetcher .
 ADD filefetcher.py .
