@@ -21,6 +21,7 @@ import pathlib
 from urllib.parse import urlparse
 import errno
 from multiprocessing import Process
+import argparse
 
 import ruamel.yaml
 import tomputils.util as tutil
@@ -36,6 +37,22 @@ MAX_UPDATE_FREQ = timedelta(seconds=10)
 PYCURL_MINOR_ERRORS = [pycurl.E_COULDNT_CONNECT, pycurl.E_OPERATION_TIMEDOUT,
                        pycurl.E_FAILED_INIT, pycurl.E_REMOTE_FILE_NOT_FOUND]
 START_TIME = datetime.now()
+
+args = None
+
+
+def _arg_parse():
+    description = "I download daily files."
+    parser = argparse.ArgumentParser(description=description)
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--url', help='URL of hosted config file')
+    parser.add_argument("--user", help="Username")
+    parser.add_argument("--passwd", help="password")
+    parser.add_argument("config", help="Local config path")
+    parser.add_argument("--no-backfill",
+                        help="Only download most recent daily files.",
+                        action='store_true')
+    return parser.parse_args()
 
 
 def parse_config():
@@ -78,7 +95,7 @@ def setRecvSpeed(curl, speed):
 
 
 def backfill_finished(datalogger, day):
-    if 'backfill' not in datalogger:
+    if 'backfill' not in datalogger or 'no-backfill' in args:
         return True
 
     backfill_date = datetime.strptime(datalogger['backfill'], '%m/%d/%Y')
@@ -245,6 +262,9 @@ def main():
     msg = "Python interpreter is too old. I need at least {} " \
           + "for EmailMessage.iter_attachments() support."
     tutil.enforce_version(REQ_VERSION, msg.format(REQ_VERSION))
+
+    global args
+    args = _arg_parse()
 
     try:
         global global_config
