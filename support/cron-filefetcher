@@ -1,7 +1,8 @@
 # Keep config updated
 */5 * * * * configupdater.py --url=$CONFIG_UPDATER_URL --user=$USER --passwd=$PASSWD $CONFIG_UPDATER_CONFIG
 
-# Run daily just after midnight
+# Run every 3 hours, as long as the previous run has completed, Supercronic makes sure of that.
+# maxRunTime config setting makes sure a single run doesn't last too long.
 10 0 * * * filefetcher.py --no-backfill > $FF_LOG_DIR/filefetcher_`date -u "+%Y%m%d:%H"` 2>&1
 
 # cleanup logs
