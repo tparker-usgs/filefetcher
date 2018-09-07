@@ -1,11 +1,8 @@
 # Keep config updated
-*/5 * * * * single.py -c configupdater.py --url=$CONFIG_UPDATER_URL --user=$USER --passwd=$PASSWD $CONFIG_UPDATER_CONFIG
+*/5 * * * * configupdater.py --url=$CONFIG_UPDATER_URL --user=$USER --passwd=$PASSWD $CONFIG_UPDATER_CONFIG
 
-# Run daily just after midnight. maxRunTime setting makes this is safe even if the previous run has not completed.
-10 0 * * * filefetcher.py > $FF_LOG_DIR/filefetcher_`date -u "+%Y%m%d:%H"` 2>&1
-
-# Run every three hours to catch files missed due to temorary telemetry issues, unless a previous run is still going.
-10 */3 * * * python2 /usr/local/bin/single.py -c filefetcher.py > $FF_LOG_DIR/filefetcher_`date -u "+%Y%m%d:%H"` 2>&1
+# Run daily just after midnight
+10 0 * * * filefetcher.py --no-backfill > $FF_LOG_DIR/filefetcher_`date -u "+%Y%m%d:%H"` 2>&1
 
 # cleanup logs
 0 0 * * * find $FF_LOG_DIR -name 'filefetcher_*' -mtime +14 -exec rm {} \;
