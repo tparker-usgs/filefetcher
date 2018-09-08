@@ -3,7 +3,7 @@
 
 # Run every 3 hours, as long as the previous run has completed, Supercronic makes sure of that.
 # maxRunTime config setting makes sure a single run doesn't last too long.
-10 0 * * * filefetcher.py $FF_CONFIG > $FF_LOG_DIR/filefetcher_`date -u "+%Y%m%d:%H"` 2>&1
+10 0 * * * filefetcher.py > $FF_LOG_DIR/filefetcher_`date -u "+%Y%m%d:%H"` 2>&1
 
 # cleanup logs
 0 0 * * * find $FF_LOG_DIR -name 'filefetcher_*' -mtime +14 -exec rm {} \;
