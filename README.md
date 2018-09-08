@@ -89,7 +89,7 @@ A Docker image of the project exists. The support directory contains an example 
 
 The Docker image expects some environemnt variables to be set.
   * **FF_LOG_DIR** Location of the log directory.
-  * **CONFIG_UPDATER_URL** The URL of a hosted configupdater config. An example is provided in the support directory.
+  * **CONFIGUPDATER_URL** The URL of a hosted configupdater config. An example is provided in the support directory.
   * **USER** Userid passed to remote server when requesting the configupdater config file.
   * **PASSWD** Password passed to remote server when requesting the configupdater config file.
 

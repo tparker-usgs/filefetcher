@@ -1,5 +1,5 @@
 # Keep config updated
-*/5 * * * * configupdater.py --url=$CONFIG_UPDATER_URL --user=$USER --passwd=$PASSWD $CONFIG_UPDATER_CONFIG
+*/5 * * * * configupdater.py --url=$CONFIGUPDATER_URL --user=$USER --passwd=$PASSWD $CONFIG_UPDATERCONFIG
 
 # Run every 3 hours, as long as the previous run has completed, Supercronic makes sure of that.
 # maxRunTime config setting makes sure a single run doesn't last too long.
