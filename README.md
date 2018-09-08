@@ -33,7 +33,7 @@ filefetcher looks to its environment for initial configuration. See example_conf
 
 There is one required environment variable.
 
-  * **FF_CONFIG_FILE** Path to configuration file.
+  * **FF_CONFIG** Path to configuration file.
 
 
 filefetcher will, optionally, use a provided directory to hold files as they're being received. This avoids creating temp files in the working directory. If no temp directory is provided, temp files will be written in the working directory.

@@ -32,7 +32,7 @@ import multiprocessing_logging
 
 REQ_VERSION = (3, 0)
 WINDOW_SIZE_FACTOR = 2
-CONFIG_FILE_ENV = 'FF_CONFIG_FILE'
+CONFIG_FILE_ENV = 'FF_CONFIG'
 MAX_UPDATE_FREQ = timedelta(seconds=10)
 PYCURL_MINOR_ERRORS = [pycurl.E_COULDNT_CONNECT, pycurl.E_OPERATION_TIMEDOUT,
                        pycurl.E_FAILED_INIT, pycurl.E_REMOTE_FILE_NOT_FOUND]
