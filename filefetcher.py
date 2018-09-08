@@ -44,11 +44,6 @@ args = None
 def _arg_parse():
     description = "I download daily files."
     parser = argparse.ArgumentParser(description=description)
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('--url', help='URL of hosted config file')
-    parser.add_argument("--user", help="Username")
-    parser.add_argument("--passwd", help="password")
-    parser.add_argument("config", help="Local config path")
     parser.add_argument("--no-backfill",
                         help="Only download most recent daily files.",
                         action='store_true')
