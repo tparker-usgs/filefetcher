@@ -33,7 +33,7 @@ filefetcher looks to its environment for initial configuration. See example_conf
 
 There is one required environment variable.
 
-  * **FF_CONFIG_FILE** Path to configuration file.
+  * **FF_CONFIG** Path to configuration file.
 
 
 filefetcher will, optionally, use a provided directory to hold files as they're being received. This avoids creating temp files in the working directory. If no temp directory is provided, temp files will be written in the working directory.
@@ -81,14 +81,15 @@ filefetcher is run by executing the filefetcher.py script. At launch, filefetche
 
 If a data logger entry has a backfill value, the process for exiting described above will be side stepped. Instead, polling will continue for all missing files day-by-day until the backfill date has been reached. 
 
-
+filefetcher supports a single commandline argument, --no-backfill. If this is given, only the most recent daily file will be retreived.
 
 ### Docker
 
+A Docker image of the project exists. The support directory contains an example shell script which can be used for deployment.
 
-
-filefetcher runs well in a docker container. All files necessary to build an image are in the support/ directory. Most will need to be tweaked for your environment. Start with support/build.sh and go from there.
-
-There is one environment variable specific to the docker image.
+The Docker image expects some environemnt variables to be set.
   * **FF_LOG_DIR** Location of the log directory.
+  * **CONFIGUPDATER_URL** The URL of a hosted configupdater config. An example is provided in the support directory.
+  * **USER** Userid passed to remote server when requesting the configupdater config file.
+  * **PASSWD** Password passed to remote server when requesting the configupdater config file.
 
