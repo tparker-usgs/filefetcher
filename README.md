@@ -63,7 +63,9 @@ The filefetcher configuration conists of a list of queues which are processed co
 
 
 
-Each entry in the data logger list represents a single remote data logger. It has a name, an address, a pattern for formatting URLs for the remote files, and a location for retrieved files. Optionally a maximum transfer speed in bytes per second may be given. As with queues, polling of individual data loggers may also be paused. Data logger entries may also have a backfill directive, which will be explained below.
+Each entry in the data logger list represents a single remote data logger. It has a name, an address, a pattern for formatting URLs for the remote files, and a location for retrieved files. Optionally a maximum transfer speed in bytes per second may be given. As with queues, polling of individual data loggers may also be paused. Data logger entries may also have a backfill directive.
+
+filefetcher will download daily files starting with yesterday and continuing backwards until finding a file that has already been dowloaded or a file that the remote host does not have. If a backfill date has been provided in the configuration filefetcher will ignore the usual termination tests and continue working back to the backfill date, retrieving all missing files. Files which have already been downloaded will not be downloaded again.
 
 
 
