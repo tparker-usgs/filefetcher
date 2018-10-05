@@ -1,5 +1,4 @@
 pycurl
-ruamel_yaml
 tomputils>=1.9.0
 humanize
 multiprocessing-logging
