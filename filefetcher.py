@@ -137,6 +137,8 @@ def create_curl(datalogger, url):
                     datalogger['low_speed_time'])
         c.setopt(c.LOW_SPEED_LIMIT, datalogger['low_speed_limit'])
         c.setopt(c.LOW_SPEED_TIME, datalogger['low_speed_time'])
+
+    c.setupd(c.SSH_COMPRESSION, True)
     c.setopt(c.NOPROGRESS, False)
     c.setopt(c.XFERINFOFUNCTION, progress)
     c.setopt(c.URL, url)
