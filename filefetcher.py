@@ -127,7 +127,8 @@ def create_curl(datalogger, url):
         if now > last_update + MAX_UPDATE_FREQ:
             download_d_str = humanize.naturalsize(download_d, format='%.2f')
             download_t_str = humanize.naturalsize(download_t, format='%.2f')
-            logger.debug("Downloaded %s of %s", download_d_str, download_t_str)
+            logger.debug("Downloaded %s of %s from %s", download_d_str,
+                         download_t_str, url)
             last_update = now
         return 0
 
