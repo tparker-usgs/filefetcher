@@ -171,7 +171,8 @@ def fetch_file(c, out_file):
             logger.info("Error retrieving %s: %s", out_file, e)
         else:
             logger.exception("Error retrieving %s", out_file)
-        remove_file(tmp_path)
+        # leave partial file in place and attempt to resume download later
+        # remove_file(tmp_path)
         return True
 
     return False
