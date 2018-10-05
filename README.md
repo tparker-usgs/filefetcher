@@ -55,7 +55,7 @@ filefetcher will, optionally, generate an email if error events are logged. To e
 
 
 
-The filefetcher configuration file is formatted in [YAML](http://yaml.org/). YAML is an expressive language and there are multiple ways to write a configuration file. Some examples are found in the example_configs/ directory. YAML can be fussy. There are several online validators which can help check configureation files if needed.
+The filefetcher configuration file is formatted in [YAML](http://yaml.org/). YAML is an expressive language and there are multiple ways to write a configuration file. Some examples are found in the example_configs/ directory. YAML can be fussy. There are several online validators which can help check configuration files if needed.
 
 
 
