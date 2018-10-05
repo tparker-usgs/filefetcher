@@ -174,7 +174,7 @@ def fetch_file(c, out_file):
         c.setopt(c.RANGE, range)
 
     try:
-        with open(tmp_path, 'wb') as f:
+        with open(tmp_path, 'ab') as f:
             c.setopt(c.WRITEDATA, f)
             c.perform()
             make_out_dir(os.path.dirname(out_file))
