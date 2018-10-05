@@ -138,7 +138,6 @@ def create_curl(datalogger, url):
         c.setopt(c.LOW_SPEED_LIMIT, datalogger['low_speed_limit'])
         c.setopt(c.LOW_SPEED_TIME, datalogger['low_speed_time'])
 
-    c.setupd(c.SSH_COMPRESSION, True)
     c.setopt(c.NOPROGRESS, False)
     c.setopt(c.XFERINFOFUNCTION, progress)
     c.setopt(c.URL, url)
@@ -172,7 +171,7 @@ def fetch_file(c, out_file):
         range = "%d-".format(os.path.getsize(tmp_path))
         logger.info("Resuming download of {} at byte {}", tmp_path, range)
         c.setopt(c.RANGE, range)
-        
+
     try:
         with open(tmp_path, 'wb') as f:
             c.setopt(c.WRITEDATA, f)
