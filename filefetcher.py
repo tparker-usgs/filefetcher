@@ -168,7 +168,7 @@ def fetch_file(c, out_file):
     tmp_path = pathlib.Path(tmp_dir) / tmp_file
 
     if os.path.exists(tmp_path):
-        range = "%d-".format(os.path.getsize(tmp_path))
+        range = "{}-".format(os.path.getsize(tmp_path))
         logger.info("Resuming download of %s for bytes %s", tmp_path, range)
         c.setopt(c.RANGE, range)
 
