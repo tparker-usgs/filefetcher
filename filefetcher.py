@@ -131,6 +131,12 @@ def create_curl(datalogger, url):
             last_update = now
         return 0
 
+    if 'low_speed_limit' in datalogger:
+        logger.info("Setting low speed limit to %db/s over %ds",
+                    datalogger['low_speed_limit'],
+                    datalogger['low_speed_time'])
+        c.setopt(c.LOW_SPEED_LIMIT, datalogger['low_speed_limit'])
+        c.setopt(c.LOW_SPEED_TIME, datalogger['low_speed_time'])
     c.setopt(c.NOPROGRESS, False)
     c.setopt(c.XFERINFOFUNCTION, progress)
     c.setopt(c.URL, url)
