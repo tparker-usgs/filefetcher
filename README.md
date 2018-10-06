@@ -55,12 +55,11 @@ filefetcher will, optionally, generate an email if error events are logged. To e
 
 
 
-The filefetcher configuration file is formatted in [YAML](http://yaml.org/). YAML is an expressive language and there are multiple ways to write a configuration file. Some examples are found in the example_configs/ directory. YAML can be fussy. There are several online validators which can help check configureation files if needed.
+The filefetcher configuration file is formatted in [YAML](http://yaml.org/). YAML is an expressive language and there are multiple ways to write a configuration file. Some examples are found in the example_configs/ directory. YAML can be fussy. There are several online validators which can help check configuration files if needed.
 
 
 
 The filefetcher configuration conists of a list of queues which are processed concurrently. Each queue defines a list of dataloggers which are polled in sequqnce. This arangement allows filefetcher to retrive files quickly while accommodating networks which may be stressed and have limited available bandwidth. Each queue has a name and a list of data loggers. Optionally a boolean value may be set to indicate that the queue should not be processed, providing a way to pause polling of that queue without having to remove the configuration.
-
 
 
 Each entry in the data logger list represents a single remote data logger. It has a name, an address, a pattern for formatting URLs for the remote files, and a location for retrieved files. Optionally a maximum transfer speed in bytes per second may be given. As with queues, polling of individual data loggers may also be paused. Data logger entries may also have a backfill directive, which will be explained below.
