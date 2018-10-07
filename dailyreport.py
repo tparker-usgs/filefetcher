@@ -10,28 +10,60 @@
 """ Email a report of daily file changes."""
 
 import os
-import difflib
-import shutil
 import logging
 import pathlib
 import subprocess
-
+from string import Template
+from datetime import timedelta, datetime
+from jinja2 import Template as jinjatmpl
 import tomputils.util as tutil
 
 
 REQ_VERSION = (3, 5)
 CONFIG_FILE_ENV = 'FF_CONFIG'
+EMAIL_TEMPLATE = """
+<HTML>
+{% block body %}
+  <ul>
+  {% for queue in queues %}
+    <li>{{ queue.name }}</li>
+  {% endfor %}
+  </ul>
+{% endblock %}
+</HTML>
+"""
 
 
 def get_daily_total(config):
     dir = os.path.join(config['out_dir'], config['name'])
-    result = subprocess.run(['find', dir, '-type', 'f', '-mtime', '-1', '-print'])
+    result = subprocess.run(['find', dir, '-type', 'f', '-mtime', '-1',
+                             '-print'], stdout=subprocess.PIPE)
 
-    return len(result.stdout.decode('utf-8').split("\n"))
+    if result.stdout:
+        return len(result.stdout.decode('utf-8').split("\n"))
+    else:
+        return 0
 
 
 def get_coverage(config):
-    pass
+    if 'out_path' not in config:
+        return None
+
+    coverage = {'week': 0, 'month': 0}
+    day = datetime.utcnow().date()
+    week_ago = day - timedelta(7)
+    month_ago = day - timedelta(30)
+    while day > month_ago:
+        day -= timedelta(1)
+        out_str = Template(config['out_path']).substitute(config)
+        out_path = day.strftime(out_str)
+        file = os.path.join(config['out_dir'], out_path)
+        if os.path.exists(file):
+            coverage['month'] += 1
+            if day > week_ago:
+                coverage['week'] += 1
+
+    return coverage
 
 
 def process_datalogger(config):
@@ -43,6 +75,8 @@ def process_datalogger(config):
         return logger_results
 
     logger_results['daily_total'] = get_daily_total(config)
+    logger.debug("%s daily total: %d", config['name'],
+                 logger_results['daily_total'])
     logger_results['coverage'] = get_coverage(config)
 
     return logger_results
@@ -56,6 +90,7 @@ def process_queue(config):
             queue.append(logger_results)
 
     return queue
+
 
 def process_queues(config):
     queues = []
@@ -84,7 +119,11 @@ def main():
         tutil.exit_with_error(msg)
 
     queues = process_queues(config)
-
+    logger.debug("Queues: %s", queues)
+    tmpl = jinjatmpl(EMAIL_TEMPLATE)
+    logger.debug(tmpl)
+    email = tmpl.render(queues=queues)
+    logger.debug(email)
     logger.debug("That's all for now, bye.")
     logging.shutdown()
 
