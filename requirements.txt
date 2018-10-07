@@ -2,3 +2,4 @@ pycurl
 tomputils>=1.9.0
 humanize
 multiprocessing-logging
+jinja2

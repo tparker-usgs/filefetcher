@@ -7,3 +7,6 @@
 
 # cleanup logs
 0 0 * * * find $FF_LOG_DIR -name 'filefetcher_*' -mtime +14 -exec rm {} \;
+
+# run daily report
+23 0 * * * dailyreport.py
