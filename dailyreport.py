@@ -236,7 +236,8 @@ def process_queues(config):
 
 def send_email(html):
     msg = MIMEMultipart('alternative')
-    msg['Subject'] = "GPS retreival"
+    day = datetime.utcnow().date() - timedelta(1)
+    msg['Subject'] = day.strftime("GPS retrieval %x")
     msg['From'] = tutil.get_env_var('LOG_SENDER')
     msg['To'] = tutil.get_env_var('REPORT_RECIPIENT')
 
