@@ -164,7 +164,7 @@ def get_coverage(config):
         return {'weekly': 0, 'monthly': 0}
 
     coverage = {}
-    day = datetime.utcnow().date() - timedelta(1)
+    day = datetime.utcnow().date() - timedelta(2)
     week_ago = day - timedelta(7)
     month_ago = day - timedelta(30)
     weekly_total = 0
@@ -236,7 +236,7 @@ def process_queues(config):
 
 def send_email(html):
     msg = MIMEMultipart('alternative')
-    day = datetime.utcnow().date() - timedelta(1)
+    day = datetime.utcnow().date() - timedelta(2)
     msg['Subject'] = day.strftime("GPS retrieval %x")
     msg['From'] = tutil.get_env_var('LOG_SENDER')
     msg['To'] = tutil.get_env_var('REPORT_RECIPIENT')

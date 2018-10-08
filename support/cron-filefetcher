@@ -9,4 +9,4 @@
 0 0 * * * find $FF_LOG_DIR -name 'filefetcher_*' -mtime +14 -exec rm {} \;
 
 # run daily report
-0 23 * * * dailyreport.py
+0 0 * * * dailyreport.py
