@@ -116,7 +116,7 @@ EMAIL_TEMPLATE = """
           {{ datalogger.name }}
         </td>
         <td style="{{ style.logger_data_cell }}">
-          {{ datalogger.daily_total }}
+          {{ datalogger.new_files|length }}
         </td>
         <td style="{{ style.logger_data_cell }}">
           {{ '%d' % datalogger.coverage.weekly }}%
@@ -148,15 +148,15 @@ EMAIL_TEMPLATE = """
 """
 
 
-def get_daily_total(config):
+def get_new_files(config):
     dir = os.path.join(config['out_dir'], config['name'])
     result = subprocess.run(['find', dir, '-type', 'f', '-mtime', '-1',
                              '-print'], stdout=subprocess.PIPE)
 
     if result.stdout:
-        return len(result.stdout.decode('utf-8').split("\n"))
+        return result.stdout.decode('utf-8').strip().split("\n")
     else:
-        return 0
+        return []
 
 
 def get_coverage(config):
@@ -192,7 +192,7 @@ def process_datalogger(config):
     logger_results['name'] = config['name']
     logger_results['disabled'] = 'disabled' in config and config['disabled']
 
-    logger_results['daily_total'] = get_daily_total(config)
+    logger_results['new_files'] = get_new_files(config)
     logger_results['coverage'] = get_coverage(config)
     logging_str = "%s daily: %d; weekly: %f; monthly: %f"
     logger.debug(logging_str, config['name'], logger_results['daily_total'],
