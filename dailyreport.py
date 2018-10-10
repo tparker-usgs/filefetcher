@@ -163,6 +163,7 @@ EMAIL_TEMPLATE = """
     </tr>
   {% endfor %}
   </table>
+
   <h1 style="{{ style.h1 }}">Files retrieved yesterday<h1>
   {% for queue in queues %}
     {% for datalogger in queue['dataloggers'] %}
@@ -175,6 +176,17 @@ EMAIL_TEMPLATE = """
     {% endfor %}
   {% endfor %}
 
+  <h1 style="{{ style.h1 }}">Recent missing files<h1>
+  {% for queue in queues %}
+    {% for datalogger in queue['dataloggers'] %}
+      <h2 style="{{ style.h2 }}">{{ queue.name }} - {{ datalogger.name  }}</h3>
+      <ul>
+      {% for file in datalogger.coverage.missing %}
+        <li style="{{ style.li }}">{{ file }}</li>
+      {% endfor %}
+      </ul>
+    {% endfor %}
+  {% endfor %}
 {% endblock %}
 </body>
 </HTML>
@@ -194,7 +206,7 @@ def get_new_files(config):
 
 def get_coverage(config):
     if 'out_path' not in config:
-        return {'weekly': 0, 'monthly': 0}
+        return {'weekly': 0, 'monthly': 0, 'missing': []}
 
     coverage = {}
     day = datetime.utcnow().date() - timedelta(2)
@@ -202,6 +214,7 @@ def get_coverage(config):
     month_ago = day - timedelta(30)
     weekly_total = 0
     monthly_total = 0
+    missing = []
     while day > month_ago:
         out_str = Template(config['out_path']).substitute(config)
         out_path = day.strftime(out_str)
@@ -210,10 +223,13 @@ def get_coverage(config):
             monthly_total += 1
             if day > week_ago:
                 weekly_total += 1
+        else:
+            missing.append(out_path)
         day -= timedelta(1)
 
     coverage['weekly'] = 100 * weekly_total / 7
     coverage['monthly'] = 100 * monthly_total / 30
+    coverage['missing'] = missing
     logger.debug("%s: weekly: %d / 7 = %f; monthly: %d / 30 = %f",
                  config['name'], weekly_total, coverage['weekly'],
                  monthly_total, coverage['monthly'])
