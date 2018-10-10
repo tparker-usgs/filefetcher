@@ -24,11 +24,31 @@ from email.mime.text import MIMEText
 
 REQ_VERSION = (3, 5)
 CONFIG_FILE_ENV = 'FF_CONFIG'
-STYLE = {'table': """
+STYLE = {'h1': """
+                font-family:Arial, sans-serif;
+                font-size:18px;
+                font-weight:bold;
+                color:#fff;
+                background-color:#2D52A2;
+         """,
+         'h2': """
+                font-family:Arial, sans-serif;
+                font-size:14px;
+                font-weight:bold;
+         """,
+         'li': """
+                font-family:Arial, sans-serif;
+                font-size:14px;
+                font-weight:normal;
+                color:#333;
+                background-color:#fff;
+                list-style-type: none;
+         """,
+         'table': """
                 border-collapse:collapse;
                 border-spacing:0;
                 border-color:#aaa;
-        """,
+         """,
          'header_cell': """
                 font-family:Arial, sans-serif;
                 font-size:14px;
@@ -43,7 +63,7 @@ STYLE = {'table': """
                 border-color:#aaa;
                 color:#fff;
                 background-color:#f38630;
-        """,
+         """,
          'logger_data_cell': """
                 font-family:Arial, sans-serif;
                 font-size:14px;
@@ -102,6 +122,7 @@ EMAIL_TEMPLATE = """
 
 <body>
 {% block body %}
+  <h1 style="{{ style.h1 }}">Summary</h1>
   <table style="{{ style.table }}">
   <tr>
     <th style="{{ style.header_cell }}">&nbsp;</th>
@@ -142,6 +163,18 @@ EMAIL_TEMPLATE = """
     </tr>
   {% endfor %}
   </table>
+  <h1 style="{{ style.h1 }}">Files retrieved yesterday<h1>
+  {% for queue in queues %}
+    {% for datalogger in queue['dataloggers'] %}
+      <h2 style="{{ style.h2 }}">{{ queue.name }} - {{ datalogger.name  }}</h3>
+      <ul>
+      {% for file in datalogger.new_files %}
+        <li style="{{ style.li }}">{{ file }}</li>
+      {% endfor %}
+      </ul>
+    {% endfor %}
+  {% endfor %}
+
 {% endblock %}
 </body>
 </HTML>
@@ -194,10 +227,6 @@ def process_datalogger(config):
 
     logger_results['new_files'] = get_new_files(config)
     logger_results['coverage'] = get_coverage(config)
-    logging_str = "%s daily: %d; weekly: %f; monthly: %f"
-    logger.debug(logging_str, config['name'], logger_results['daily_total'],
-                 logger_results['coverage']['weekly'],
-                 logger_results['coverage']['monthly'])
 
     return logger_results
 
@@ -213,7 +242,7 @@ def process_queue(config):
     weekly = 0
     monthly = 0
     for datalogger in queue['dataloggers']:
-        daily_total += datalogger['daily_total']
+        daily_total += len(datalogger['new_files'])
         weekly += datalogger['coverage']['weekly']
         monthly += datalogger['coverage']['monthly']
 
