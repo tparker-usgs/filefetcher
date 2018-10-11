@@ -36,6 +36,10 @@ STYLE = {'h1': """
                 font-size:14px;
                 font-weight:bold;
          """,
+         'hr': """
+                border-style: solid;
+                border-width: 2px;
+         """,
          'li': """
                 font-family:Arial, sans-serif;
                 font-size:14px;
@@ -122,7 +126,7 @@ EMAIL_TEMPLATE = """
 
 <body>
 {% block body %}
-  <h1 style="{{ style.h1 }}">Summary</h1>
+  <h1 style="{{ style.h1 }}">Summary</h1><br>
   <table style="{{ style.table }}">
   <tr>
     <th style="{{ style.header_cell }}">&nbsp;</th>
@@ -164,26 +168,36 @@ EMAIL_TEMPLATE = """
   {% endfor %}
   </table>
 
-  <h1 style="{{ style.h1 }}">Files retrieved yesterday<h1>
+  <hr style="{{ style.hr }}">
+  <h1 style="{{ style.h1 }}">Files retrieved yesterday<h1><br>
   {% for queue in queues %}
     {% for datalogger in queue['dataloggers'] %}
       <h2 style="{{ style.h2 }}">{{ queue.name }} - {{ datalogger.name  }}</h3>
       <ul>
-      {% for file in datalogger.new_files %}
-        <li style="{{ style.li }}">{{ file }}</li>
-      {% endfor %}
+      {% if datalogger.new_files %}
+        {% for file in datalogger.new_files %}
+          <li style="{{ style.li }}">{{ file }}</li>
+        {% endfor %}
+      {% else %}
+          <li style="{{ style.li }}">No files retrieved yesterday.</li>
+      {% endif %}
       </ul>
     {% endfor %}
   {% endfor %}
 
-  <h1 style="{{ style.h1 }}">Recent missing files<h1>
+  <hr style="{{ style.hr }}">
+  <h1 style="{{ style.h1 }}">Recent missing files<h1><br>
   {% for queue in queues %}
     {% for datalogger in queue['dataloggers'] %}
       <h2 style="{{ style.h2 }}">{{ queue.name }} - {{ datalogger.name  }}</h3>
       <ul>
-      {% for file in datalogger.coverage.missing %}
-        <li style="{{ style.li }}">{{ file }}</li>
-      {% endfor %}
+      {% if datalogger.coverage.missing %}
+        {% for file in datalogger.coverage.missing %}
+          <li style="{{ style.li }}">{{ file }}</li>
+        {% endfor %}
+      {% else %}
+          <li style="{{ style.li }}">No missing files</li>
+      {% endif %}
       </ul>
     {% endfor %}
   {% endfor %}
