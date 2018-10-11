@@ -172,7 +172,7 @@ EMAIL_TEMPLATE = """
   <h1 style="{{ style.h1 }}">Files retrieved yesterday<h1><br>
   {% for queue in queues %}
     {% for datalogger in queue['dataloggers'] %}
-      <h2 style="{{ style.h2 }}">{{ queue.name }} - {{ datalogger.name  }}</h3>
+      <h2 style="{{ style.h2 }}">{{ queue.name }} - {{ datalogger.name  }}</h2>
       <ul>
       {% if datalogger.new_files %}
         {% for file in datalogger.new_files %}
@@ -189,7 +189,12 @@ EMAIL_TEMPLATE = """
   <h1 style="{{ style.h1 }}">Recent missing files<h1><br>
   {% for queue in queues %}
     {% for datalogger in queue['dataloggers'] %}
-      <h2 style="{{ style.h2 }}">{{ queue.name }} - {{ datalogger.name  }}</h3>
+      <h2 style="{{ style.h2 }}">
+        {{ queue.name }} - {{ datalogger.name  }}
+        {% if datalogger.backfill %}
+          - backfill through {{ datalogger.backfill }}
+        {% endif %}
+      </h2>
       <ul>
       {% if datalogger.coverage.missing %}
         {% for file in datalogger.coverage.missing %}
@@ -254,7 +259,11 @@ def process_datalogger(config):
     logger_results = {}
     logger_results['name'] = config['name']
     logger_results['disabled'] = 'disabled' in config and config['disabled']
-
+    if 'backfill' in config:
+        logger.debug("%s backfill: %s", config['name'], config['backfill'])
+        logger_results['backfill'] = config['backfill']
+    else:
+        logger.debug("%s no backfill", config['name'])
     logger_results['new_files'] = get_new_files(config)
     logger_results['coverage'] = get_coverage(config)
 
@@ -331,7 +340,6 @@ def main():
     tmpl = jinjatmpl(EMAIL_TEMPLATE)
     logger.debug(tmpl)
     email = tmpl.render(queues=queues, style=STYLE)
-    logger.debug(email)
     send_email(email)
     logger.debug("That's all for now, bye.")
     logging.shutdown()
