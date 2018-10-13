@@ -247,41 +247,43 @@ def get_new_files(config):
     else:
         return []
 
-
-def get_coverage(config):
-    if 'out_path' not in config:
-        return {'weekly': 0, 'monthly': 0, 'ad_hoc': 0, 'missing': []}
-
-    coverage = {}
+def count_files(config):
+    files = {'weekly': 0, 'monthly': 0, 'ad_hoc':0, 'missing': []}
     day = datetime.utcnow().date() - timedelta(2)
     week_ago = day - timedelta(7)
     month_ago = day - timedelta(30)
     ad_hoc_ago = day - timedelta(global_args.span)
 
-    weekly_total = 0
-    monthly_total = 0
-    ad_hoc_total = 0
-    missing = []
     while day > min(month_ago, ad_hoc_ago):
         out_str = Template(config['out_path']).substitute(config)
         out_path = day.strftime(out_str)
         file = os.path.join(config['out_dir'], out_path)
         if os.path.exists(file):
-            ad_hoc_total += 1
+            files['ad_hoc'] += 1
             if day > month_ago:
-                monthly_total += 1
+                files['monthly'] += 1
 
                 if day > week_ago:
-                    weekly_total += 1
+                    files['weekly'] += 1
         else:
-            missing.append(out_path)
+            files['missing'].append(out_path)
         day -= timedelta(1)
 
-    coverage['weekly'] = 100 * weekly_total / 7
-    coverage['monthly'] = 100 * monthly_total / 30
-    coverage['ad_hoc'] = 100 * ad_hoc_total / global_args.span
+    return files
 
-    coverage['missing'] = missing
+
+def get_coverage(config):
+    if 'out_path' not in config:
+        return {'weekly': 0, 'monthly': 0, 'ad_hoc': 0, 'missing': []}
+
+    files = count_files(config)
+
+    coverage = {}
+    coverage['weekly'] = 100 * files['weekly'] / 7
+    coverage['monthly'] = 100 * files['monthly'] / 30
+    coverage['ad_hoc'] = 100 * files['ad_hoc'] / global_args.span
+
+    coverage['missing'] = files['missing']
     return coverage
 
 
@@ -300,13 +302,18 @@ def process_datalogger(config):
     return logger_results
 
 
-def process_queue(config):
+def find_datalogger_files(config):
     queue = {'name': config['name'], 'dataloggers': []}
     for datalogger in config['dataloggers']:
         logger_results = process_datalogger(datalogger)
-        if logger_results is not None:
+        if logger_results:
             queue['dataloggers'].append(logger_results)
 
+    return queue
+
+
+def process_queue(config):
+    queue = find_datalogger_files(config)
     daily_total = 0
     weekly = 0
     monthly = 0
