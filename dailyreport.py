@@ -263,8 +263,8 @@ def count_files(config):
             if day > month_ago:
                 files['monthly'] += 1
 
-                if day > week_ago:
-                    files['weekly'] += 1
+            if day > week_ago:
+                files['weekly'] += 1
         else:
             files['missing'].append(out_path)
         day -= timedelta(1)
@@ -277,7 +277,6 @@ def get_coverage(config):
         return {'weekly': 0, 'monthly': 0, 'ad_hoc': 0, 'missing': []}
 
     files = count_files(config)
-
     coverage = {}
     coverage['weekly'] = 100 * files['weekly'] / 7
     coverage['monthly'] = 100 * files['monthly'] / 30
