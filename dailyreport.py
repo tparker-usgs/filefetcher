@@ -247,8 +247,9 @@ def get_new_files(config):
     else:
         return []
 
+
 def count_files(config):
-    files = {'weekly': 0, 'monthly': 0, 'ad_hoc':0, 'missing': []}
+    files = {'weekly': 0, 'monthly': 0, 'ad_hoc': 0, 'missing': []}
     day = datetime.utcnow().date() - timedelta(2)
     week_ago = day - timedelta(7)
     month_ago = day - timedelta(30)
