@@ -9,6 +9,7 @@
 
 """ Email a report of daily file changes."""
 
+import argparse
 import os
 import logging
 import pathlib
@@ -133,6 +134,9 @@ EMAIL_TEMPLATE = """
     <th style="{{ style.header_cell }}">Retrieved<br>yesterday</th>
     <th style="{{ style.header_cell }}">Weekly<br>coverage</th>
     <th style="{{ style.header_cell }}">Monthly<br>coverage</th>
+    {% if ad_hoc > 0 %}
+        <th style="{{ style.header_cell }}">{{ ad_hoc }} day<br>coverage</th>
+    {% endif %}
   </tr>
   {% for queue in queues %}
     {% for datalogger in queue['dataloggers'] %}
@@ -149,6 +153,11 @@ EMAIL_TEMPLATE = """
         <td style="{{ style.logger_data_cell }}">
           {{ '%d' % datalogger.coverage.monthly }}%
         </td>
+        {% if ad_hoc > 0 %}
+          <td style="{{ style.logger_data_cell }}">
+            {{ '%d' % datalogger.coverage.ad_hoc }}%
+          </td>
+        {% endif %}
       </tr>
     {% endfor %}
     <tr>
@@ -164,6 +173,12 @@ EMAIL_TEMPLATE = """
       <td style="{{ style.queue_data_cell }}">
         {{ '%d' % queue.monthly_coverage }}%
       </td>
+      {% if ad_hoc > 0 %}
+        <td style="{{ style.queue_data_cell }}">
+          {{ '%d' % queue.ad_hoc_coverage }}%
+        </td>
+      {% endif %}
+
     </tr>
   {% endfor %}
   </table>
@@ -212,6 +227,16 @@ EMAIL_TEMPLATE = """
 """
 
 
+def arg_parse():
+    description = "I create and email a daily report of GPS download health."
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument("-s", "--span", help="How far back should I look?",
+                        type=int, default=-1)
+    parser.add_argument("-r", "--recipient", help="Who should I email?",
+                        default=tutil.get_env_var('REPORT_RECIPIENT'))
+    return parser.parse_args()
+
+
 def get_new_files(config):
     dir = os.path.join(config['out_dir'], config['name'])
     result = subprocess.run(['find', dir, '-type', 'f', '-mtime', '-1',
@@ -225,33 +250,38 @@ def get_new_files(config):
 
 def get_coverage(config):
     if 'out_path' not in config:
-        return {'weekly': 0, 'monthly': 0, 'missing': []}
+        return {'weekly': 0, 'monthly': 0, 'ad_hoc': 0, 'missing': []}
 
     coverage = {}
     day = datetime.utcnow().date() - timedelta(2)
     week_ago = day - timedelta(7)
     month_ago = day - timedelta(30)
+    ad_hoc_ago = day - timedelta(global_args.span)
+
     weekly_total = 0
     monthly_total = 0
+    ad_hoc_total = 0
     missing = []
-    while day > month_ago:
+    while day > min(month_ago, ad_hoc_ago):
         out_str = Template(config['out_path']).substitute(config)
         out_path = day.strftime(out_str)
         file = os.path.join(config['out_dir'], out_path)
         if os.path.exists(file):
-            monthly_total += 1
-            if day > week_ago:
-                weekly_total += 1
+            ad_hoc_total += 1
+            if day > month_ago:
+                monthly_total += 1
+
+                if day > week_ago:
+                    weekly_total += 1
         else:
             missing.append(out_path)
         day -= timedelta(1)
 
     coverage['weekly'] = 100 * weekly_total / 7
     coverage['monthly'] = 100 * monthly_total / 30
+    coverage['ad_hoc'] = 100 * ad_hoc_total / global_args.span
+
     coverage['missing'] = missing
-    logger.debug("%s: weekly: %d / 7 = %f; monthly: %d / 30 = %f",
-                 config['name'], weekly_total, coverage['weekly'],
-                 monthly_total, coverage['monthly'])
     return coverage
 
 
@@ -280,14 +310,18 @@ def process_queue(config):
     daily_total = 0
     weekly = 0
     monthly = 0
+    ad_hoc = 0
     for datalogger in queue['dataloggers']:
         daily_total += len(datalogger['new_files'])
         weekly += datalogger['coverage']['weekly']
         monthly += datalogger['coverage']['monthly']
+        if datalogger['coverage']['ad_hoc'] > 0:
+            ad_hoc += datalogger['coverage']['ad_hoc']
 
     queue['daily_total'] = daily_total
     queue['weekly_coverage'] = weekly / len(queue['dataloggers'])
     queue['monthly_coverage'] = monthly / len(queue['dataloggers'])
+    queue['ad_hoc_coverage'] = ad_hoc / len(queue['dataloggers'])
     return queue
 
 
@@ -306,6 +340,9 @@ def send_email(html):
     msg = MIMEMultipart('alternative')
     day = datetime.utcnow().date() - timedelta(2)
     msg['Subject'] = day.strftime("GPS retrieval %x")
+    if global_args.span > 0:
+        msg['Subject'] += " - {} day span".format(global_args.span)
+
     msg['From'] = tutil.get_env_var('LOG_SENDER')
     msg['To'] = tutil.get_env_var('REPORT_RECIPIENT')
 
@@ -313,9 +350,8 @@ def send_email(html):
 
     try:
         s = smtplib.SMTP(tutil.get_env_var('MAILHOST'))
-        s.sendmail(tutil.get_env_var('LOG_SENDER'),
-                   tutil.get_env_var('REPORT_RECIPIENT'), msg.as_string())
-
+        s.sendmail(tutil.get_env_var('LOG_SENDER'), global_args.recipient,
+                   msg.as_string())
     except OSError as e:
         logger.exception(e)
 
@@ -323,6 +359,9 @@ def send_email(html):
 def main():
     global logger
     logger = tutil.setup_logging("filefetcher errors")
+
+    global global_args
+    global_args = arg_parse()
 
     msg = "Python interpreter is too old. I need at least {} " \
           + "for EmailMessage.iter_attachments() support."
@@ -339,7 +378,7 @@ def main():
     logger.debug("Queues: %s", queues)
     tmpl = jinjatmpl(EMAIL_TEMPLATE)
     logger.debug(tmpl)
-    email = tmpl.render(queues=queues, style=STYLE)
+    email = tmpl.render(queues=queues, style=STYLE, ad_hoc=global_args.span)
     send_email(email)
     logger.debug("That's all for now, bye.")
     logging.shutdown()
