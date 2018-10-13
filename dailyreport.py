@@ -260,11 +260,8 @@ def count_files(config):
         file = os.path.join(config['out_dir'], out_path)
         if os.path.exists(file):
             files['ad_hoc'] += 1
-            if day > month_ago:
-                files['monthly'] += 1
-
-            if day > week_ago:
-                files['weekly'] += 1
+            files['monthly'] += 1 if day > month_ago else 0
+            files['weekly'] += 1 if day > week_ago else 0
         else:
             files['missing'].append(out_path)
         day -= timedelta(1)
