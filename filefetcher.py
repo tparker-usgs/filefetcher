@@ -222,6 +222,10 @@ def is_out_of_time():
     return time_exceeded or too_late
 
 
+def met_minimum_lookback(datalogger, day):
+    return day < datetime.now() - timedelta(days=datalogger['minimumLookback'])
+
+
 def poll_logger(datalogger, day):
     if 'disabled' in datalogger and datalogger['disabled']:
         logger.debug("Skipping %s (disabled)", datalogger['name'])
@@ -239,6 +243,7 @@ def poll_logger(datalogger, day):
         finished = fetch_file(c, out_path)
 
     finished = finished and backfill_finished(datalogger, day)
+    finished = finished or met_minimum_lookback(datalogger, day)
     finished = finished or is_out_of_time()
 
     return finished
