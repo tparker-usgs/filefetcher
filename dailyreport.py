@@ -212,8 +212,12 @@ EMAIL_TEMPLATE = """
       </h2>
       <ul>
       {% if datalogger.coverage.missing %}
-        {% for file in datalogger.coverage.missing %}
-          <li style="{{ style.li }}">{{ file }}</li>
+        {% for span in datalogger.coverage.missing %}
+          {% if span[0] == span[1] %}
+            <li style="{{ style.li }}">{{ span[0] }}</li>
+          {% else %}
+            <li style="{{ style.li }}">{{ span[0] }} - {{ span[1] }}</li>
+          {% endif %}
         {% endfor %}
       {% else %}
           <li style="{{ style.li }}">No missing files</li>
@@ -230,8 +234,9 @@ EMAIL_TEMPLATE = """
 def arg_parse():
     description = "I create and email a daily report of GPS download health."
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument("-s", "--span", help="How far back should I look?",
-                        type=int, default=-1)
+    parser.add_argument("-s", "--span",
+                        help="How many days back should I look?", type=int,
+                        default=-1)
     parser.add_argument("-r", "--recipient", help="Who should I email?",
                         default=tutil.get_env_var('REPORT_RECIPIENT'))
     return parser.parse_args()
@@ -255,17 +260,27 @@ def count_files(config):
     month_ago = day - timedelta(30)
     ad_hoc_ago = day - timedelta(global_args.span)
 
+    missing = None
     while day > min(month_ago, ad_hoc_ago):
         out_str = Template(config['out_path']).substitute(config)
         out_path = day.strftime(out_str)
         file = os.path.join(config['out_dir'], out_path)
         if os.path.exists(file):
+            if missing is not None:
+                files['missing'].append(missing)
+                missing = None
             files['ad_hoc'] += 1
             files['monthly'] += 1 if day > month_ago else 0
             files['weekly'] += 1 if day > week_ago else 0
         else:
-            files['missing'].append(out_path)
+            if missing is None:
+                missing = [day, day]
+            else:
+                missing[0] = day
         day -= timedelta(1)
+
+    if missing is not None:
+        files['missing'].append(missing)
 
     return files
 
