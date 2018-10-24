@@ -202,6 +202,26 @@ def find_out_file(datalogger, day, url):
     return pathlib.Path(datalogger['out_dir']) / out_path
 
 
+def is_out_of_time():
+    now = datetime.now()
+
+    run_time = now - START_TIME
+    if run_time > timedelta(minutes=global_config['maxRunTime']):
+        logger.info("maxRunTime exceeded, lets cleanup and exit.")
+        time_exceeded = True
+    else:
+        time_exceeded = False
+
+    shutdown_time = datetime.strptime(global_config['shutdownTime'], '%H:%M')
+    if now.time() > shutdown_time:
+        logger.info("It's loo late in the day, lets cleanup and exit.")
+        too_late = True
+    else:
+        too_late = False
+
+    return time_exceeded or too_late
+
+
 def poll_logger(datalogger, day):
     if 'disabled' in datalogger and datalogger['disabled']:
         logger.debug("Skipping %s (disabled)", datalogger['name'])
@@ -218,11 +238,10 @@ def poll_logger(datalogger, day):
         c = create_curl(datalogger, url)
         finished = fetch_file(c, out_path)
 
-    run_time = datetime.now() - START_TIME
-    time_exceeded = run_time > timedelta(minutes=global_config['maxRunTime'])
-    if time_exceeded:
-        logger.info("maxRunTime exceeded, lets cleanup and exit.")
-    return time_exceeded or (finished and backfill_finished(datalogger, day))
+    finished = finished and backfill_finished(datalogger, day)
+    finished = finished or is_out_of_time()
+
+    return finished
 
 
 def poll_loggers(dataloggers, day):
