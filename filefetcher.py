@@ -223,7 +223,8 @@ def is_out_of_time():
 
 
 def met_minimum_lookback(datalogger, day):
-    return day < datetime.now() - timedelta(days=datalogger['minimumLookback'])
+    span = timedelta(days=datalogger['minimumLookback'])
+    return day < datetime.now().date() - span
 
 
 def poll_logger(datalogger, day):
