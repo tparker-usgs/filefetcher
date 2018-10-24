@@ -213,7 +213,7 @@ def is_out_of_time():
         time_exceeded = False
 
     shutdown_time = datetime.strptime(global_config['shutdownTime'], '%H:%M')
-    if now.time() > shutdown_time:
+    if now.time() > shutdown_time.time():
         logger.info("It's loo late in the day, lets cleanup and exit.")
         too_late = True
     else:
