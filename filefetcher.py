@@ -164,18 +164,21 @@ def remove_file(file):
             raise
 
 
-def fetch_file(c, out_file):
+def fetch_file(c, out_file, resume):
     tmp_dir = tutil.get_env_var("FF_TMP_DIR", default=".")
     tmp_file = "{}.tmp".format(os.path.basename(out_file))
     tmp_path = pathlib.Path(tmp_dir) / tmp_file
 
-    if os.path.exists(tmp_path):
+    if os.path.exists(tmp_path) and resume:
         range = "{}-".format(os.path.getsize(tmp_path))
         logger.info("Resuming download of %s for bytes %s", tmp_path, range)
         c.setopt(c.RANGE, range)
+        mode = 'ab'
+    else:
+        mode = 'wb'
 
     try:
-        with open(tmp_path, 'ab', buffering=0) as f:
+        with open(tmp_path, 'mode', buffering=0) as f:
             c.setopt(c.WRITEDATA, f)
             c.perform()
             make_out_dir(os.path.dirname(out_file))
@@ -248,7 +251,7 @@ def poll_logger(datalogger, day):
     else:
         logger.info("Fetching %s from %s", out_path, url)
         c = create_curl(datalogger, url)
-        finished = fetch_file(c, out_path)
+        finished = fetch_file(c, out_path, datalogger['partial_downloads'])
 
     finished = finished and backfill_finished(datalogger, day)
     finished = finished or met_minimum_lookback(datalogger, day)
