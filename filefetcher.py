@@ -87,6 +87,7 @@ def setRecvSpeed(curl, speed):
 
     curl.setopt(curl.SOCKOPTFUNCTION, sockoptfunction)
     curl.setopt(curl.MAX_RECV_SPEED_LARGE, speed)
+    curl.setopt(curl.BUFFERSIZE, speed * WINDOW_SIZE_FACTOR)
 
 
 def backfill_finished(datalogger, day):
