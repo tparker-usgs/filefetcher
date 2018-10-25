@@ -261,7 +261,8 @@ def get_new_files(config):
 
 
 def count_files(config):
-    files = {'weekly': 0, 'monthly': 0, 'yearly': 0,'ad_hoc': 0, 'missing': []}
+    files = {'weekly': 0, 'monthly': 0, 'yearly': 0,
+             'ad_hoc': 0, 'missing': []}
     day = datetime.utcnow().date() - timedelta(2)
     week_ago = day - timedelta(7)
     month_ago = day - timedelta(30)
@@ -296,7 +297,8 @@ def count_files(config):
 
 def get_coverage(config):
     if 'out_path' not in config:
-        return {'weekly': 0, 'monthly': 0, 'yearly': 0, 'ad_hoc': 0, 'missing': []}
+        return {'weekly': 0, 'monthly': 0, 'yearly': 0,
+                'ad_hoc': 0, 'missing': []}
 
     files = count_files(config)
     coverage = {}
