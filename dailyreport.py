@@ -134,6 +134,7 @@ EMAIL_TEMPLATE = """
     <th style="{{ style.header_cell }}">Retrieved<br>yesterday</th>
     <th style="{{ style.header_cell }}">Weekly<br>coverage</th>
     <th style="{{ style.header_cell }}">Monthly<br>coverage</th>
+    <th style="{{ style.header_cell }}">Yearly<br>coverage</th>
     {% if ad_hoc > 0 %}
         <th style="{{ style.header_cell }}">{{ ad_hoc }} day<br>coverage</th>
     {% endif %}
@@ -152,6 +153,9 @@ EMAIL_TEMPLATE = """
         </td>
         <td style="{{ style.logger_data_cell }}">
           {{ '%d' % datalogger.coverage.monthly }}%
+        </td>
+        <td style="{{ style.logger_data_cell }}">
+          {{ '%d' % datalogger.coverage.yearly }}%
         </td>
         {% if ad_hoc > 0 %}
           <td style="{{ style.logger_data_cell }}">
@@ -172,6 +176,9 @@ EMAIL_TEMPLATE = """
       </td>
       <td style="{{ style.queue_data_cell }}">
         {{ '%d' % queue.monthly_coverage }}%
+      </td>
+      <td style="{{ style.queue_data_cell }}">
+        {{ '%d' % queue.yearly_coverage }}%
       </td>
       {% if ad_hoc > 0 %}
         <td style="{{ style.queue_data_cell }}">
@@ -254,14 +261,15 @@ def get_new_files(config):
 
 
 def count_files(config):
-    files = {'weekly': 0, 'monthly': 0, 'ad_hoc': 0, 'missing': []}
+    files = {'weekly': 0, 'monthly': 0, 'yearly': 0,'ad_hoc': 0, 'missing': []}
     day = datetime.utcnow().date() - timedelta(2)
     week_ago = day - timedelta(7)
     month_ago = day - timedelta(30)
+    year_ago = day - timedelta(30)
     ad_hoc_ago = day - timedelta(global_args.span)
 
     missing = None
-    while day > min(month_ago, ad_hoc_ago):
+    while day > min(year_ago, ad_hoc_ago):
         out_str = Template(config['out_path']).substitute(config)
         out_path = day.strftime(out_str)
         file = os.path.join(config['out_dir'], out_path)
@@ -270,6 +278,7 @@ def count_files(config):
                 files['missing'].append(missing)
                 missing = None
             files['ad_hoc'] += 1
+            files['yearly'] += 1 if day > year_ago else 0
             files['monthly'] += 1 if day > month_ago else 0
             files['weekly'] += 1 if day > week_ago else 0
         else:
@@ -287,12 +296,13 @@ def count_files(config):
 
 def get_coverage(config):
     if 'out_path' not in config:
-        return {'weekly': 0, 'monthly': 0, 'ad_hoc': 0, 'missing': []}
+        return {'weekly': 0, 'monthly': 0, 'yearly': 0, 'ad_hoc': 0, 'missing': []}
 
     files = count_files(config)
     coverage = {}
     coverage['weekly'] = 100 * files['weekly'] / 7
     coverage['monthly'] = 100 * files['monthly'] / 30
+    coverage['yearly'] = 100 * files['yearly'] / 365.25
     coverage['ad_hoc'] = 100 * files['ad_hoc'] / global_args.span
 
     coverage['missing'] = files['missing']
@@ -329,17 +339,20 @@ def process_queue(config):
     daily_total = 0
     weekly = 0
     monthly = 0
+    yearly = 0
     ad_hoc = 0
     for datalogger in queue['dataloggers']:
         daily_total += len(datalogger['new_files'])
         weekly += datalogger['coverage']['weekly']
         monthly += datalogger['coverage']['monthly']
+        yearly += datalogger['coverage']['yearly']
         if datalogger['coverage']['ad_hoc'] > 0:
             ad_hoc += datalogger['coverage']['ad_hoc']
 
     queue['daily_total'] = daily_total
     queue['weekly_coverage'] = weekly / len(queue['dataloggers'])
     queue['monthly_coverage'] = monthly / len(queue['dataloggers'])
+    queue['yearly_coverage'] = yearly / len(queue['dataloggers'])
     queue['ad_hoc_coverage'] = ad_hoc / len(queue['dataloggers'])
     return queue
 
