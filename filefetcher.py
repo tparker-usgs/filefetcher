@@ -178,7 +178,7 @@ def fetch_file(c, out_file, resume):
         mode = 'wb'
 
     try:
-        with open(tmp_path, 'mode', buffering=0) as f:
+        with open(tmp_path, mode, buffering=0) as f:
             c.setopt(c.WRITEDATA, f)
             c.perform()
             make_out_dir(os.path.dirname(out_file))
