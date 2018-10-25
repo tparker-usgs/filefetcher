@@ -202,24 +202,30 @@ def find_out_file(datalogger, day, url):
     return pathlib.Path(datalogger['out_dir']) / out_path
 
 
-def is_out_of_time():
-    now = datetime.now()
+def is_running_too_long():
+    if 'maxRunTime' not in global_config:
+        return False
 
+    now = datetime.now()
     run_time = now - START_TIME
     if run_time > timedelta(minutes=global_config['maxRunTime']):
         logger.info("maxRunTime exceeded, lets cleanup and exit.")
-        time_exceeded = True
+        return True
     else:
-        time_exceeded = False
+        return False
 
+
+def is_too_late():
+    if 'shutdownTime' not in global_config:
+        return False
+
+    now = datetime.now()
     shutdown_time = datetime.strptime(global_config['shutdownTime'], '%H:%M')
     if now.time() > shutdown_time.time():
         logger.info("It's loo late in the day, lets cleanup and exit.")
-        too_late = True
+        return True
     else:
-        too_late = False
-
-    return time_exceeded or too_late
+        return False
 
 
 def met_minimum_lookback(datalogger, day):
@@ -245,7 +251,8 @@ def poll_logger(datalogger, day):
 
     finished = finished and backfill_finished(datalogger, day)
     finished = finished or met_minimum_lookback(datalogger, day)
-    finished = finished or is_out_of_time()
+    finished = finished or is_running_too_long()
+    finished = finished or is_too_late()
 
     return finished
 
