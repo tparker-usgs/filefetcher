@@ -262,7 +262,7 @@ def poll_logger(datalogger, day):
         finished = fetch_file(c, out_path, datalogger['partial_downloads'])
 
     finished = finished and backfill_finished(datalogger, day)
-    finished = finished or met_minimum_lookback(datalogger, day)
+    finished = finished and met_minimum_lookback(datalogger, day)
     finished = finished or is_running_too_long()
     finished = finished or is_too_late()
 
