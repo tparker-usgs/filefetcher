@@ -234,15 +234,15 @@ def is_too_late():
 
 def met_minimum_lookback(datalogger, day):
     if 'minimumLookback' not in datalogger:
-        return true
+        return True
 
     span = timedelta(days=datalogger['minimumLookback'])
     if day < datetime.now().date() - span:
         logger.debug("satified minimumLookback=%d for %s",
                      datalogger['minimumLookback'], datalogger['name'])
-        return true
+        return True
     else:
-        return false
+        return False
 
 
 def poll_logger(datalogger, day):
