@@ -90,7 +90,7 @@ def setRecvSpeed(curl, speed):
     curl.setopt(curl.BUFFERSIZE, speed * WINDOW_SIZE_FACTOR)
 
 
-def backfill_finished(datalogger, day):
+def is_backfill_finished(datalogger, day):
     if 'backfill' not in datalogger or 'no-backfill' in args:
         return True
 
@@ -232,7 +232,7 @@ def is_too_late():
         return False
 
 
-def met_minimum_lookback(datalogger, day):
+def has_met_minimum_lookback(datalogger, day):
     if 'minimumLookback' not in datalogger:
         return True
 
@@ -250,6 +250,9 @@ def poll_logger(datalogger, day):
         logger.debug("Skipping %s (disabled)", datalogger['name'])
         return True
 
+    if is_too_late() or is_running_too_long():
+        return True
+
     url_str = Template(datalogger['url']).substitute(datalogger)
     url = day.strftime(url_str)
     out_path = find_out_file(datalogger, day, url)
@@ -261,10 +264,8 @@ def poll_logger(datalogger, day):
         c = create_curl(datalogger, url)
         finished = fetch_file(c, out_path, datalogger['partial_downloads'])
 
-    finished = finished and backfill_finished(datalogger, day)
-    finished = finished and met_minimum_lookback(datalogger, day)
-    finished = finished or is_running_too_long()
-    finished = finished or is_too_late()
+    finished = finished and is_backfill_finished(datalogger, day)
+    finished = finished and has_met_minimum_lookback(datalogger, day)
 
     return finished
 
