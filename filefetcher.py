@@ -245,12 +245,23 @@ def has_met_minimum_lookback(datalogger, day):
         return False
 
 
+def keep_polling():
+    if is_too_late():
+        return False
+
+    if is_running_too_long():
+        return False
+
+    return True
+
+
 def poll_logger(datalogger, day):
     if 'disabled' in datalogger and datalogger['disabled']:
         logger.debug("Skipping %s (disabled)", datalogger['name'])
         return True
 
-    if is_too_late() or is_running_too_long():
+
+    if not keep_polling():
         return True
 
     url_str = Template(datalogger['url']).substitute(datalogger)
