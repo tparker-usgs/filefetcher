@@ -260,7 +260,6 @@ def poll_logger(datalogger, day):
         logger.debug("Skipping %s (disabled)", datalogger['name'])
         return True
 
-
     if not keep_polling():
         return True
 
