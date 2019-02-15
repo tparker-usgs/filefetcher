@@ -282,12 +282,16 @@ def poll_logger(datalogger, day):
 
 
 def poll_loggers(dataloggers, day):
+    not_finished = []
     for datalogger in dataloggers:
         finished = poll_logger(datalogger, day)
 
         if finished:
             logger.info("All done with logger %s.", datalogger['name'])
-            dataloggers.remove(datalogger)
+        else:
+            not_finished.append(datalogger)
+
+    return not_finished
 
 
 def poll_queue(config):
@@ -296,7 +300,7 @@ def poll_queue(config):
         dataloggers = config['dataloggers']
         while dataloggers:
             day -= timedelta(1)
-            poll_loggers(dataloggers, day)
+            dataloggers = poll_loggers(dataloggers, day)
     finally:
         logger.info("All done with queue %s.", config['name'])
         for handler in logger.handlers:
