@@ -295,7 +295,7 @@ def poll_loggers(dataloggers, day):
 
 def poll_queue(config):
     tmp_dir = tutil.get_env_var("FF_TMP_DIR", default=".")
-    tmp_file = "{}.tmp".format(config['name'])
+    tmp_file = "{}.lock".format(config['name'])
     lock_file = pathlib.Path(tmp_dir) / tmp_file
 
     lock = Lock(lock_file)
