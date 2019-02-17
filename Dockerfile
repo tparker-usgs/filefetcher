@@ -31,4 +31,4 @@ ADD filefetcher.py .
 ADD dailyreport.py .
 RUN chmod 755 *.py
 
-CMD ["/usr/local/bin/supercronic","/app/filefetcher/cron-filefetcher"]
+CMD ["/usr/local/bin/supercronic","-overlapping","/app/filefetcher/cron-filefetcher"]
