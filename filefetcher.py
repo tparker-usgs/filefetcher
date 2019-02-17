@@ -315,7 +315,7 @@ def poll_queue(config):
         for handler in logger.handlers:
             handler.flush()
 
-        if lock:
+        if gotlock:
             lock.unlock()
 
 
