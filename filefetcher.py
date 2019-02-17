@@ -316,7 +316,10 @@ def poll_queue(config):
             handler.flush()
 
         if gotlock:
-            lock.unlock()
+            try:
+                lock.unlock()
+            except AttributeError:
+                pass
 
 
 def poll_queues():
