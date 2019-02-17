@@ -298,8 +298,8 @@ def poll_queue(config):
     tmp_file = "{}.tmp".format(config['name'])
     lock_file = pathlib.Path(tmp_dir) / tmp_file
 
-    lock=Lock(lock_file)
-    gotlock, pid=lock.lock_pid()
+    lock = Lock(lock_file)
+    gotlock, pid = lock.lock_pid()
     if not gotlock:
         logger.info("Queue {} locked, skipping".format(config['name']))
         return
