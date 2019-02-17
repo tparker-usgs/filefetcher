@@ -1,5 +1,5 @@
 pycurl
-tomputils>=1.12.3
+tomputils>=1.12.4
 humanize
 multiprocessing-logging
 jinja2
