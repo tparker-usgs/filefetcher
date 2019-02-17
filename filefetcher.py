@@ -28,7 +28,7 @@ import tomputils.util as tutil
 import pycurl
 import humanize
 import multiprocessing_logging
-
+from single import Lock
 
 REQ_VERSION = (3, 0)
 WINDOW_SIZE_FACTOR = 2
@@ -294,6 +294,16 @@ def poll_loggers(dataloggers, day):
 
 
 def poll_queue(config):
+    tmp_dir = tutil.get_env_var("FF_TMP_DIR", default=".")
+    tmp_file = "{}.tmp".format(config['name'])
+    lock_file = pathlib.Path(tmp_dir) / tmp_file
+
+    lock=Lock(lock_file)
+    gotlock, pid=lock.lock_pid()
+    if not gotlock:
+        logger.info("Queue {} locked, skipping".format(config['name']))
+        return
+
     try:
         day = datetime.utcnow().date()
         dataloggers = config['dataloggers']
@@ -304,6 +314,9 @@ def poll_queue(config):
         logger.info("All done with queue %s.", config['name'])
         for handler in logger.handlers:
             handler.flush()
+
+        if lock:
+            lock.unlock()
 
 
 def poll_queues():

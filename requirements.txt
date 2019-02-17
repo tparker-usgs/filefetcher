@@ -3,3 +3,4 @@ tomputils>=1.12.3
 humanize
 multiprocessing-logging
 jinja2
+single
