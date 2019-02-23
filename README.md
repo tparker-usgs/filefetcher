@@ -86,7 +86,7 @@ filefetcher supports a single commandline argument, --no-backfill. If this is gi
 
 A Docker image of the project exists. The support directory contains an example shell script which can be used for deployment.
 
-The Docker image uses configupdater from tomputils to keep track of its configuration. config updater expects a few environment variables.
+The Docker image assumes you want to use configupdater from tomputils and have its config file hosted at a URL.
   * **CU_CONFIG_URL** URL of bootstrap config.
   * **CU_CONTEXT_NAME** The identifying name used in configupdater emails
   * **CU_USER** User id to use when retrieving the bootstrap config. Optional.
