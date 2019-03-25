@@ -238,21 +238,14 @@ def has_met_minimum_lookback(datalogger, day):
 
     span = timedelta(days=datalogger['minimumLookback'])
     if day < datetime.now().date() - span:
-        logger.debug("satified minimumLookback=%d for %s",
+        logger.debug("satisfied minimumLookback=%d for %s",
                      datalogger['minimumLookback'], datalogger['name'])
         return True
     else:
         return False
 
 
-def poll_logger(datalogger, day):
-    if 'disabled' in datalogger and datalogger['disabled']:
-        logger.debug("Skipping %s (disabled)", datalogger['name'])
-        return True
-
-    if is_too_late() or is_running_too_long():
-        return True
-
+def retrieve_file(datalogger, day):
     url_str = Template(datalogger['url']).substitute(datalogger)
     url = day.strftime(url_str)
     out_path = find_out_file(datalogger, day, url)
@@ -264,6 +257,33 @@ def poll_logger(datalogger, day):
         c = create_curl(datalogger, url)
         finished = fetch_file(c, out_path, datalogger['partial_downloads'])
 
+    return finished
+
+
+def retrieve_directory(datalogger, day):
+    url_str = Template(datalogger['url']).substitute(datalogger)
+    url = day.strftime(url_str)
+    out_path = find_out_file(datalogger, day, url)
+    if os.path.exists(out_path):
+        logger.info("I already have %s", out_path)
+        finished = True
+    else:
+        logger.info("Fetching %s from %s", out_path, url)
+        c = create_curl(datalogger, url)
+        finished = fetch_file(c, out_path, datalogger['partial_downloads'])
+
+    return finished
+
+
+def poll_logger(datalogger, day):
+    if 'disabled' in datalogger and datalogger['disabled']:
+        logger.debug("Skipping %s (disabled)", datalogger['name'])
+        return True
+
+    if is_too_late() or is_running_too_long():
+        return True
+
+    finished = retrieve_file(datalogger, day)
     finished = finished and is_backfill_finished(datalogger, day)
     finished = finished and has_met_minimum_lookback(datalogger, day)
 
