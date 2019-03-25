@@ -92,6 +92,7 @@ def setRecvSpeed(curl, speed):
 
 def is_backfill_finished(datalogger, day):
     if 'backfill' not in datalogger or 'no-backfill' in args:
+        logger.debug("No backfill configured")
         return True
 
     backfill_date = datetime.strptime(datalogger['backfill'], '%m/%d/%Y')
@@ -101,7 +102,7 @@ def is_backfill_finished(datalogger, day):
                      backfill_date)
         return False
     else:
-        logger.info("Completed backfill from %s to %s", day, backfill_date)
+        logger.info("Completed backfill to %s", backfill_date)
         return True
 
 
