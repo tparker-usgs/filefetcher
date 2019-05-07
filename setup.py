@@ -35,6 +35,7 @@ setup(
     entry_points={
         'console_scripts': [
             'filefetcher = filefetcher.filefetcher:main',
+            'dailyreport = filefetcher.dailyreport:main',
             'fetcherreaper = filefetcher.fetcherreaper:main'
         ]
     }

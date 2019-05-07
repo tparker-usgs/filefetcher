@@ -1,0 +1,3 @@
+[console_scripts]
+filefetcher = filefetcher.filefetcher:main
+
