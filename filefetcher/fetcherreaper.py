@@ -25,6 +25,8 @@ def main():
 
                 process_age = datetime.now() - create_time
                 if process_age > MAX_RUN_TIME:
+                    logger.info("Killing process %s, has been running for %s",
+                                pid, process_age)
                     process.terminate()
                     print("pid: {} age: {}".format(pid, process_age))
 
