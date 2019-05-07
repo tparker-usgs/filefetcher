@@ -29,8 +29,5 @@ RUN python setup.py install
 
 ENV CONFIGUPDATER_CONFIG=/tmp/configupdater.yaml
 ADD support/cron-filefetcher .
-ADD filefetcher.py .
-ADD dailyreport.py .
-RUN chmod 755 *.py
 
 CMD ["/usr/local/bin/supercronic","-overlapping","/app/filefetcher/cron-filefetcher"]
