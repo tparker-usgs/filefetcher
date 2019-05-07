@@ -28,7 +28,6 @@ ADD setup.cfg .
 RUN python setup.py install
 
 ENV CONFIGUPDATER_CONFIG=/tmp/configupdater.yaml
-ADD VERSION .
 ADD support/cron-filefetcher .
 ADD filefetcher.py .
 ADD dailyreport.py .
