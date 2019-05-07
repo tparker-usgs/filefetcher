@@ -21,8 +21,10 @@ RUN curl -fsSLO "$SUPERCRONIC_URL" \
  && ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic
 
 WORKDIR /app/filefetcher
-ADD requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt # 1
+ADD filefetcher filefetcher
+ADD setup.py .
+ADD setup.cfg .
+RUN python setup.py install
 
 ENV CONFIGUPDATER_CONFIG=/tmp/configupdater.yaml
 ADD VERSION .
