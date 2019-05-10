@@ -32,12 +32,11 @@ setup(
         'psutil',
         'single'
     ],
-    setup_requires=['pytest-runner'],
-    tests_require=['pytest'],
     entry_points={
         'console_scripts': [
             'filefetcher = filefetcher.filefetcher:main',
-            'fetcherreaper = camcommander.fetcherreaper:main',
+            'dailyreport = filefetcher.dailyreport:main',
+            'fetcherreaper = filefetcher.fetcherreaper:main'
         ]
     }
 )

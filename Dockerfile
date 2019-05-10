@@ -20,6 +20,7 @@ RUN curl -fsSLO "$SUPERCRONIC_URL" \
  && mv "$SUPERCRONIC" "/usr/local/bin/${SUPERCRONIC}" \
  && ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic
 
+RUN pip install tomputils
 WORKDIR /app/filefetcher
 ADD filefetcher filefetcher
 ADD setup.py .
@@ -27,10 +28,6 @@ ADD setup.cfg .
 RUN python setup.py install
 
 ENV CONFIGUPDATER_CONFIG=/tmp/configupdater.yaml
-ADD VERSION .
 ADD support/cron-filefetcher .
-ADD filefetcher.py .
-ADD dailyreport.py .
-RUN chmod 755 *.py
 
 CMD ["/usr/local/bin/supercronic","-overlapping","/app/filefetcher/cron-filefetcher"]

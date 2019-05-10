@@ -1,0 +1,7 @@
+pycurl
+tomputils>=1.12.4
+humanize
+multiprocessing-logging
+jinja2
+psutil
+single

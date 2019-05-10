@@ -1,0 +1,13 @@
+README.md
+setup.cfg
+setup.py
+filefetcher/__init__.py
+filefetcher/fetcherreaper.py
+filefetcher/filefetcher.py
+filefetcher/version.py
+filefetcher.egg-info/PKG-INFO
+filefetcher.egg-info/SOURCES.txt
+filefetcher.egg-info/dependency_links.txt
+filefetcher.egg-info/entry_points.txt
+filefetcher.egg-info/requires.txt
+filefetcher.egg-info/top_level.txt
