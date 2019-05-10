@@ -322,15 +322,18 @@ def poll_queue(config):
             day -= timedelta(1)
             dataloggers = poll_loggers(dataloggers, day)
     finally:
-        logger.info("All done with queue %s.", config['name'])
+        logger.debug("shuttingdown queue %s.", config['name'])
         for handler in logger.handlers:
             handler.flush()
+        logger.info("flushed handlers for queue %s.", config['name'])
 
         if gotlock:
             try:
                 lock.unlock()
             except AttributeError:
                 pass
+
+        logger.info("All done with queue %s.", config['name'])
 
 
 def poll_queues():
