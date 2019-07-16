@@ -335,12 +335,15 @@ def poll_queue(config):
         logger.info("All done with queue %s.", config["name"])
         for handler in logger.handlers:
             handler.flush()
+        logger.info("flushed handlers for queue %s.", config['name'])
 
         if gotlock:
             try:
                 lock.unlock()
             except AttributeError:
                 pass
+
+        logger.info("All done with queue %s.", config['name'])
 
 
 def poll_queues():

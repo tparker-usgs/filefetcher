@@ -7,3 +7,4 @@ git commit -m 'version bump'
 git push \
 && git tag $VERSION \
 && git push --tags
+
