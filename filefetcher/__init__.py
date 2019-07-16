@@ -20,4 +20,4 @@ import tomputils.util as tutil
 from filefetcher.version import __version__
 
 logger = tutil.setup_logging("filefetcher - errors")
-__all__ = ['__version__']
+__all__ = ["__version__"]

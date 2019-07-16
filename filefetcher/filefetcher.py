@@ -32,10 +32,14 @@ from single import Lock
 
 REQ_VERSION = (3, 0)
 WINDOW_SIZE_FACTOR = 2
-CONFIG_FILE_ENV = 'FF_CONFIG'
+CONFIG_FILE_ENV = "FF_CONFIG"
 MAX_UPDATE_FREQ = timedelta(seconds=10)
-PYCURL_MINOR_ERRORS = [pycurl.E_COULDNT_CONNECT, pycurl.E_OPERATION_TIMEDOUT,
-                       pycurl.E_FAILED_INIT, pycurl.E_REMOTE_FILE_NOT_FOUND]
+PYCURL_MINOR_ERRORS = [
+    pycurl.E_COULDNT_CONNECT,
+    pycurl.E_OPERATION_TIMEDOUT,
+    pycurl.E_FAILED_INIT,
+    pycurl.E_REMOTE_FILE_NOT_FOUND,
+]
 START_TIME = datetime.now()
 
 args = None
@@ -44,9 +48,11 @@ args = None
 def _arg_parse():
     description = "I download daily files."
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument("--no-backfill",
-                        help="Only download most recent daily files.",
-                        action='store_true')
+    parser.add_argument(
+        "--no-backfill",
+        help="Only download most recent daily files.",
+        action="store_true",
+    )
     return parser.parse_args()
 
 
@@ -91,15 +97,14 @@ def setRecvSpeed(curl, speed):
 
 
 def is_backfill_finished(datalogger, day):
-    if 'backfill' not in datalogger or 'no-backfill' in args:
+    if "backfill" not in datalogger or "no-backfill" in args:
         logger.debug("No backfill configured")
         return True
 
-    backfill_date = datetime.strptime(datalogger['backfill'], '%m/%d/%Y')
+    backfill_date = datetime.strptime(datalogger["backfill"], "%m/%d/%Y")
     backfill_date = backfill_date.date()
     if day > backfill_date:
-        logger.debug("Continuing to backfill from %s to %s", day,
-                     backfill_date)
+        logger.debug("Continuing to backfill from %s to %s", day, backfill_date)
         return False
     else:
         logger.info("Completed backfill to %s", backfill_date)
@@ -109,17 +114,16 @@ def is_backfill_finished(datalogger, day):
 def create_curl(datalogger, url):
     c = pycurl.Curl()
     c.setopt(c.VERBOSE, True)
-    if 'userpwd' in datalogger:
-        userpwd = tutil.get_env_var(datalogger['userpwd'], secret=True)
-        logger.debug("Setting userpw to whatever is in $%s",
-                     datalogger['userpwd'])
+    if "userpwd" in datalogger:
+        userpwd = tutil.get_env_var(datalogger["userpwd"], secret=True)
+        logger.debug("Setting userpw to whatever is in $%s", datalogger["userpwd"])
         c.setopt(pycurl.USERPWD, userpwd)
 
-    if 'recvSpeed' in datalogger:
-        setRecvSpeed(c, datalogger['recvSpeed'])
+    if "recvSpeed" in datalogger:
+        setRecvSpeed(c, datalogger["recvSpeed"])
 
-    if 'port' in datalogger:
-        c.setopt(pycurl.PORT, datalogger['port'])
+    if "port" in datalogger:
+        c.setopt(pycurl.PORT, datalogger["port"])
 
     last_update = datetime.now()
 
@@ -127,19 +131,22 @@ def create_curl(datalogger, url):
         nonlocal last_update
         now = datetime.now()
         if now > last_update + MAX_UPDATE_FREQ:
-            download_d_str = humanize.naturalsize(download_d, format='%.2f')
-            download_t_str = humanize.naturalsize(download_t, format='%.2f')
-            logger.debug("Downloaded %s of %s from %s", download_d_str,
-                         download_t_str, url)
+            download_d_str = humanize.naturalsize(download_d, format="%.2f")
+            download_t_str = humanize.naturalsize(download_t, format="%.2f")
+            logger.debug(
+                "Downloaded %s of %s from %s", download_d_str, download_t_str, url
+            )
             last_update = now
         return 0
 
-    if 'low_speed_limit' in datalogger:
-        logger.info("Setting low speed limit to %db/s over %ds",
-                    datalogger['low_speed_limit'],
-                    datalogger['low_speed_time'])
-        c.setopt(c.LOW_SPEED_LIMIT, datalogger['low_speed_limit'])
-        c.setopt(c.LOW_SPEED_TIME, datalogger['low_speed_time'])
+    if "low_speed_limit" in datalogger:
+        logger.info(
+            "Setting low speed limit to %db/s over %ds",
+            datalogger["low_speed_limit"],
+            datalogger["low_speed_time"],
+        )
+        c.setopt(c.LOW_SPEED_LIMIT, datalogger["low_speed_limit"])
+        c.setopt(c.LOW_SPEED_TIME, datalogger["low_speed_time"])
 
     c.setopt(c.NOPROGRESS, False)
     c.setopt(c.XFERINFOFUNCTION, progress)
@@ -174,9 +181,9 @@ def fetch_file(c, out_file, resume):
         range = "{}-".format(os.path.getsize(tmp_path))
         logger.info("Resuming download of %s for bytes %s", tmp_path, range)
         c.setopt(c.RANGE, range)
-        mode = 'ab'
+        mode = "ab"
     else:
-        mode = 'wb'
+        mode = "wb"
 
     try:
         with open(tmp_path, mode, buffering=0) as f:
@@ -197,23 +204,23 @@ def fetch_file(c, out_file, resume):
 
 
 def find_out_file(datalogger, day, url):
-    if 'out_path' in datalogger:
-        out_str = Template(datalogger['out_path']).substitute(datalogger)
+    if "out_path" in datalogger:
+        out_str = Template(datalogger["out_path"]).substitute(datalogger)
         out_path = day.strftime(out_str)
     else:
         url_parts = urlparse(url)
-        out_path = pathlib.Path(datalogger['name']) / url_parts.path[1:]
+        out_path = pathlib.Path(datalogger["name"]) / url_parts.path[1:]
 
-    return pathlib.Path(datalogger['out_dir']) / out_path
+    return pathlib.Path(datalogger["out_dir"]) / out_path
 
 
 def is_running_too_long():
-    if 'maxRunTime' not in global_config:
+    if "maxRunTime" not in global_config:
         return False
 
     now = datetime.now()
     run_time = now - START_TIME
-    if run_time > timedelta(minutes=global_config['maxRunTime']):
+    if run_time > timedelta(minutes=global_config["maxRunTime"]):
         logger.info("maxRunTime exceeded, lets cleanup and exit.")
         return True
     else:
@@ -221,11 +228,11 @@ def is_running_too_long():
 
 
 def is_too_late():
-    if 'shutdownTime' not in global_config:
+    if "shutdownTime" not in global_config:
         return False
 
     now = datetime.now()
-    shutdown_time = datetime.strptime(global_config['shutdownTime'], '%H:%M')
+    shutdown_time = datetime.strptime(global_config["shutdownTime"], "%H:%M")
     if now.time() > shutdown_time.time():
         logger.info("It's loo late in the day, lets cleanup and exit.")
         return True
@@ -234,20 +241,23 @@ def is_too_late():
 
 
 def has_met_minimum_lookback(datalogger, day):
-    if 'minimumLookback' not in datalogger:
+    if "minimumLookback" not in datalogger:
         return True
 
-    span = timedelta(days=datalogger['minimumLookback'])
+    span = timedelta(days=datalogger["minimumLookback"])
     if day < datetime.now().date() - span:
-        logger.debug("satisfied minimumLookback=%d for %s",
-                     datalogger['minimumLookback'], datalogger['name'])
+        logger.debug(
+            "satisfied minimumLookback=%d for %s",
+            datalogger["minimumLookback"],
+            datalogger["name"],
+        )
         return True
     else:
         return False
 
 
 def retrieve_file(datalogger, day):
-    url_str = Template(datalogger['url']).substitute(datalogger)
+    url_str = Template(datalogger["url"]).substitute(datalogger)
     url = day.strftime(url_str)
     out_path = find_out_file(datalogger, day, url)
     if os.path.exists(out_path):
@@ -256,13 +266,13 @@ def retrieve_file(datalogger, day):
     else:
         logger.info("Fetching %s from %s", out_path, url)
         c = create_curl(datalogger, url)
-        finished = fetch_file(c, out_path, datalogger['partial_downloads'])
+        finished = fetch_file(c, out_path, datalogger["partial_downloads"])
 
     return finished
 
 
 def retrieve_directory(datalogger, day):
-    url_str = Template(datalogger['url']).substitute(datalogger)
+    url_str = Template(datalogger["url"]).substitute(datalogger)
     url = day.strftime(url_str)
     out_path = find_out_file(datalogger, day, url)
     if os.path.exists(out_path):
@@ -271,14 +281,14 @@ def retrieve_directory(datalogger, day):
     else:
         logger.info("Fetching %s from %s", out_path, url)
         c = create_curl(datalogger, url)
-        finished = fetch_file(c, out_path, datalogger['partial_downloads'])
+        finished = fetch_file(c, out_path, datalogger["partial_downloads"])
 
     return finished
 
 
 def poll_logger(datalogger, day):
-    if 'disabled' in datalogger and datalogger['disabled']:
-        logger.debug("Skipping %s (disabled)", datalogger['name'])
+    if "disabled" in datalogger and datalogger["disabled"]:
+        logger.debug("Skipping %s (disabled)", datalogger["name"])
         return True
 
     if is_too_late() or is_running_too_long():
@@ -297,7 +307,7 @@ def poll_loggers(dataloggers, day):
         finished = poll_logger(datalogger, day)
 
         if finished:
-            logger.info("All done with logger %s.", datalogger['name'])
+            logger.info("All done with logger %s.", datalogger["name"])
         else:
             not_finished.append(datalogger)
 
@@ -306,23 +316,23 @@ def poll_loggers(dataloggers, day):
 
 def poll_queue(config):
     tmp_dir = tutil.get_env_var("FF_TMP_DIR", default=".")
-    tmp_file = "{}.lock".format(config['name'])
+    tmp_file = "{}.lock".format(config["name"])
     lock_file = pathlib.Path(tmp_dir) / tmp_file
 
     lock = Lock(lock_file)
     gotlock, pid = lock.lock_pid()
     if not gotlock:
-        logger.info("Queue {} locked, skipping".format(config['name']))
+        logger.info("Queue {} locked, skipping".format(config["name"]))
         return
 
     try:
         day = datetime.utcnow().date()
-        dataloggers = config['dataloggers']
+        dataloggers = config["dataloggers"]
         while dataloggers:
             day -= timedelta(1)
             dataloggers = poll_loggers(dataloggers, day)
     finally:
-        logger.info("All done with queue %s.", config['name'])
+        logger.info("All done with queue %s.", config["name"])
         for handler in logger.handlers:
             handler.flush()
 
@@ -335,9 +345,9 @@ def poll_queue(config):
 
 def poll_queues():
     procs = []
-    for queue in global_config['queues']:
-        if 'disabled' in queue and queue['disabled']:
-            logger.info("Queue %s is disabled, skiping it.", queue['name'])
+    for queue in global_config["queues"]:
+        if "disabled" in queue and queue["disabled"]:
+            logger.info("Queue %s is disabled, skiping it.", queue["name"])
         else:
             p = Process(target=poll_queue, args=(queue,))
             procs.append(p)
@@ -354,8 +364,10 @@ def main():
     logger = tutil.setup_logging("filefetcher errors")
     multiprocessing_logging.install_mp_handler()
 
-    msg = "Python interpreter is too old. I need at least {} " \
-          + "for EmailMessage.iter_attachments() support."
+    msg = (
+        "Python interpreter is too old. I need at least {} "
+        + "for EmailMessage.iter_attachments() support."
+    )
     tutil.enforce_version(REQ_VERSION, msg.format(REQ_VERSION))
 
     global args
@@ -376,5 +388,5 @@ def main():
     logging.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
