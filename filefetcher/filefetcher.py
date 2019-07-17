@@ -34,12 +34,6 @@ REQ_VERSION = (3, 0)
 WINDOW_SIZE_FACTOR = 2
 CONFIG_FILE_ENV = "FF_CONFIG"
 MAX_UPDATE_FREQ = timedelta(seconds=10)
-PYCURL_MINOR_ERRORS = [
-    pycurl.E_COULDNT_CONNECT,
-    pycurl.E_OPERATION_TIMEDOUT,
-    pycurl.E_FAILED_INIT,
-    pycurl.E_REMOTE_FILE_NOT_FOUND,
-]
 START_TIME = datetime.now()
 
 args = None
@@ -192,7 +186,7 @@ def fetch_file(c, out_file, resume):
             make_out_dir(os.path.dirname(out_file))
             os.rename(tmp_path, out_file)
     except pycurl.error as e:
-        if e.args[0] in PYCURL_MINOR_ERRORS:
+        if e.args[0] in tutil.get_env_var("PYCURL_MINOR_ERRORS").split(","):
             logger.info("Error retrieving %s: %s", out_file, e)
         else:
             logger.exception("Error retrieving %s", out_file)
@@ -335,7 +329,7 @@ def poll_queue(config):
         logger.info("All done with queue %s.", config["name"])
         for handler in logger.handlers:
             handler.flush()
-        logger.info("flushed handlers for queue %s.", config['name'])
+        logger.info("flushed handlers for queue %s.", config["name"])
 
         if gotlock:
             try:
@@ -343,7 +337,7 @@ def poll_queue(config):
             except AttributeError:
                 pass
 
-        logger.info("All done with queue %s.", config['name'])
+        logger.info("All done with queue %s.", config["name"])
 
 
 def poll_queues():
