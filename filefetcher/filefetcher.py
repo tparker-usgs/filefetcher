@@ -189,7 +189,12 @@ def fetch_file(c, out_file, resume):
         if e.args[0] in tutil.get_env_var("PYCURL_MINOR_ERRORS").split(","):
             logger.info("Error retrieving %s: %s", out_file, e)
         else:
-            logger.exception("Error retrieving %s", out_file)
+            logger.exception(
+                "Error retrieving %s. %d not in %s",
+                out_file,
+                e.args[0],
+                tutil.get_env_var("PYCURL_MINOR_ERRORS").split(","),
+            )
         # leave partial file in place and attempt to resume download later
         # remove_file(tmp_path)
         return True
