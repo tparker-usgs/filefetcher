@@ -6,7 +6,7 @@
 10 */2 * * * filefetcher > $FF_LOG_DIR/filefetcher_`date -u "+%Y%m%d:%H"` 2>&1
 
 # kill anything running for more than 24 hours 
-50 23 * * * fetcherreaper > $FF_LOG_DIR/fetcherreaper_`date -u "+%Y%m%d:%H"` 2>&1
+50 * * * * fetcherreaper > $FF_LOG_DIR/fetcherreaper_`date -u "+%Y%m%d:%H"` 2>&1
 
 # cleanup logs
 0 0 * * * find $FF_LOG_DIR -name 'filefetcher_*' -mtime +14 -exec rm {} \;
