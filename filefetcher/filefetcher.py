@@ -36,6 +36,7 @@ CONFIG_FILE_ENV = "FF_CONFIG"
 MAX_UPDATE_FREQ = timedelta(seconds=10)
 START_TIME = datetime.now()
 
+
 args = None
 
 
@@ -186,17 +187,15 @@ def fetch_file(c, out_file, resume):
             make_out_dir(os.path.dirname(out_file))
             os.rename(tmp_path, out_file)
     except pycurl.error as e:
-        if e.args[0] in tutil.get_env_var("PYCURL_MINOR_ERRORS").split(","):
+        minor_errors = tutil.get_env_var("PYCURL_MINOR_ERRORS").split(",")
+        minor_errors = [int(i) for i in minor_errors]
+
+        if e.args[0] in minor_errors:
             logger.info("Error retrieving %s: %s", out_file, e)
         else:
             logger.exception(
-                "Error retrieving %s. %d not in %s",
-                out_file,
-                e.args[0],
-                tutil.get_env_var("PYCURL_MINOR_ERRORS").split(","),
+                f"Error retrieving {out_file}. {e.args[0]} not in {minor_errors}"
             )
-        # leave partial file in place and attempt to resume download later
-        # remove_file(tmp_path)
         return True
 
     return False
